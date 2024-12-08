@@ -1,0 +1,42 @@
+import 'dart:async';
+
+import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
+import 'package:awesome_task_manager/src/types/types.dart';
+
+import '../tasks/cancelable_task.dart';
+
+class SequentialQueueResolver<T> extends TaskResolver<T> {
+  int maximumParallelTasks;
+  SequentialQueueResolver({
+    required super.taskId,
+    required this.maximumParallelTasks,
+  }){
+    validateMaximumParallelTasks(maximumParallelTasks);
+  }
+
+  Future<TaskResult<T>> executeTask({
+    required String callerReference,
+    required Task<T> task,
+    Duration? timeoutDuration,
+  }) async {
+      CancelableTask<T> completer = CancelableTask(
+          taskId: taskId,
+          task: task
+      );
+
+      taskQueue.add(completer);
+      if (tasksRunning >= maximumParallelTasks) {
+        await completer.future;
+      }
+
+      return executeSingleTask(
+        tag: callerReference,
+        cancelableTaskReference: completer,
+      ).whenComplete(() {
+        fetchNextQueue(
+          callerReference: callerReference,
+          finishedTask: completer,
+        );
+      });
+  }
+}

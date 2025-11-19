@@ -311,7 +311,7 @@ class MockCancelableTask<T> extends _i1.Mock implements _i4.CancelableTask<T> {
       ) as bool);
 
   @override
-  bool get executed => (super.noSuchMethod(
+  bool get executing => (super.noSuchMethod(
         Invocation.getter(#executed),
         returnValue: false,
         returnValueForMissingStub: false,
@@ -348,7 +348,7 @@ class MockCancelableTask<T> extends _i1.Mock implements _i4.CancelableTask<T> {
       );
 
   @override
-  set executed(bool? value) => super.noSuchMethod(
+  set executing(bool? value) => super.noSuchMethod(
         Invocation.setter(
           #executed,
           value,

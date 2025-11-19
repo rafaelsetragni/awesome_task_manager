@@ -6,21 +6,20 @@ import 'package:awesome_task_manager/src/streams/observable_stream.dart';
 import '../resolvers/task_resolver.dart';
 
 abstract class TaskManager {
-  static final Map<String, ObservableStream<TaskStatus>> taskStreams = {};
+  static final Map<String?, ObservableStream<TaskStatus>> taskStreams = {};
 
   static void emitNewTaskState({required TaskStatus taskStatus}) {
     taskStreams[taskStatus.taskId]?.add(taskStatus);
-    taskStreams['']?.add(taskStatus);
+    taskStreams[null]?.add(taskStatus);
   }
 
   static ObservableStream<TaskStatus> getStreamController({
     String? taskId,
-  }){
-    final finalTaskId = taskId ?? '';
-    final controller =
-        taskStreams[finalTaskId] ??= ObservableStream<TaskStatus>(
-          initialValue: TaskStatus.empty(taskId: finalTaskId)
-        );
+  }) {
+    final finalTaskId = taskId;
+    final controller = taskStreams[finalTaskId] ??=
+        ObservableStream<TaskStatus>(
+            initialValue: TaskStatus.empty(taskId: finalTaskId));
     return controller;
   }
 
@@ -30,7 +29,7 @@ abstract class TaskManager {
   final Map<String, TaskResolver> taskResolvers = {};
   final Map<String, Type> resolverTypes = {};
 
-  void resetManager(){
+  void resetManager() {
     taskStreams.clear();
     taskResolvers.clear();
     resolverTypes.clear();
@@ -40,8 +39,7 @@ abstract class TaskManager {
     required String taskId,
     required TaskResolver<T> Function() factory,
   }) {
-    TaskResolver resolver =
-    taskResolvers[taskId] ??= factory();
+    TaskResolver resolver = taskResolvers[taskId] ??= factory();
     if (resolver is TaskResolver<T>) {
       getStreamController(taskId: taskId);
       return resolver;

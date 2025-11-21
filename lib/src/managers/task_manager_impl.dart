@@ -9,6 +9,11 @@ import '../../awesome_task_manager.dart';
 import '../types/types.dart';
 
 class SharedResultManager extends TaskManager {
+  final String managerId;
+
+  SharedResultManager({
+    required this.managerId,
+  });
 
   Future<TaskResult<T>> executeTaskSharingResult<T>({
     required String callerReference,
@@ -19,23 +24,28 @@ class SharedResultManager extends TaskManager {
   }) {
     final SharedResultResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () =>
-            SharedResultResolver<T>(
+        factory: () => SharedResultResolver<T>(
+              managerId: managerId,
               taskId: taskId,
             )) as SharedResultResolver<T>;
 
     resolverTypes[taskId] = T;
     return resolver.executeTask(
-        callerReference: callerReference,
-        task: task,
-        cacheDuration: cacheDuration,
-        timeoutDuration: timeoutDuration,
+      callerReference: callerReference,
+      task: task,
+      cacheDuration: cacheDuration,
+      timeoutDuration: timeoutDuration,
     );
   }
 }
 
-
 class SequentialQueueManager extends TaskManager {
+  final String managerId;
+
+  SequentialQueueManager({
+    required this.managerId,
+  });
+
   Future<TaskResult<T>> executeSequentialTask<T>({
     required String callerReference,
     required String taskId,
@@ -45,26 +55,28 @@ class SequentialQueueManager extends TaskManager {
   }) {
     final SequentialQueueResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () =>
-            SequentialQueueResolver<T>(
+        factory: () => SequentialQueueResolver<T>(
+              managerId: managerId,
               taskId: taskId,
               maximumParallelTasks: maximumParallelTasks,
             )) as SequentialQueueResolver<T>;
 
     resolverTypes[taskId] = T;
     return resolver.executeTask(
-      callerReference: callerReference,
-      task: task,
-      timeoutDuration: timeoutDuration
-    );
+        callerReference: callerReference,
+        task: task,
+        timeoutDuration: timeoutDuration);
   }
 }
 
-
 class TaskPoolManager extends TaskManager {
+  final String managerId;
   final int poolSize;
 
-  TaskPoolManager({required this.poolSize});
+  TaskPoolManager({
+    required this.poolSize,
+    required this.managerId,
+  });
 
   Future<TaskResult<T>> executeTaskInPool<T>({
     required String callerReference,
@@ -74,8 +86,8 @@ class TaskPoolManager extends TaskManager {
   }) {
     final SequentialQueueResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () =>
-            SequentialQueueResolver<T>(
+        factory: () => SequentialQueueResolver<T>(
+              managerId: managerId,
               taskId: taskId,
               maximumParallelTasks: poolSize,
             )) as SequentialQueueResolver<T>;
@@ -85,16 +97,18 @@ class TaskPoolManager extends TaskManager {
     return resolver.executeTask(
         callerReference: callerReference,
         task: task,
-        timeoutDuration: timeoutDuration
-    );
+        timeoutDuration: timeoutDuration);
   }
 }
 
 class RejectedAfterThresholdManager extends TaskManager {
+  final String managerId;
   final int taskThreshold;
 
-  RejectedAfterThresholdManager({required this.taskThreshold});
-
+  RejectedAfterThresholdManager({
+    required this.taskThreshold,
+    required this.managerId,
+  });
 
   Future<TaskResult<T>> executeRejectingAfterThreshold<T>({
     required String callerReference,
@@ -104,8 +118,8 @@ class RejectedAfterThresholdManager extends TaskManager {
   }) {
     final RejectAfterThresholdResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () =>
-            RejectAfterThresholdResolver<T>(
+        factory: () => RejectAfterThresholdResolver<T>(
+              managerId: managerId,
               taskId: taskId,
               taskThreshold: taskThreshold,
             )) as RejectAfterThresholdResolver<T>;
@@ -113,18 +127,19 @@ class RejectedAfterThresholdManager extends TaskManager {
     resolverTypes[taskId] = T;
 
     return resolver.executeTask(
-        callerReference: callerReference,
-        task: task,
+      callerReference: callerReference,
+      task: task,
     );
   }
-
 }
 
 class CancelPreviousTaskManager extends TaskManager {
+  final String managerId;
   final int maximumParallelTasks;
 
   CancelPreviousTaskManager({
-    required this.maximumParallelTasks
+    required this.maximumParallelTasks,
+    required this.managerId,
   });
 
   Future<TaskResult<T>> executeCancellingPreviousTask<T>({
@@ -136,8 +151,8 @@ class CancelPreviousTaskManager extends TaskManager {
   }) {
     final SharedResultResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () =>
-            CancelPreviousResolver(
+        factory: () => CancelPreviousResolver(
+              managerId: managerId,
               taskId: taskId,
               maximumParallelTasks: maximumParallelTasks,
             )) as SharedResultResolver<T>;
@@ -151,4 +166,3 @@ class CancelPreviousTaskManager extends TaskManager {
     );
   }
 }
-

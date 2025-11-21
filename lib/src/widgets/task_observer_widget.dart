@@ -8,8 +8,12 @@ class AwesomeTaskObserver<T> extends StatelessWidget {
   const AwesomeTaskObserver({required this.builder, super.key, this.taskId});
 
   @override
-  Widget build(BuildContext context) => StreamBuilder(
+  Widget build(BuildContext context) => StreamBuilder<TaskStatus>(
         stream: AwesomeTaskManager().getTaskStatusStream(taskId: taskId),
-        builder: builder,
+        builder: (context, snapshot) {
+          AwesomeTaskManager()
+              .log('AwesomeTaskObserver rebuilt for taskId: $taskId');
+          return builder(context, snapshot);
+        },
       );
 }

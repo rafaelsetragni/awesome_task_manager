@@ -8,7 +8,12 @@ class CancelableTask<T> extends TaskState<T> {
   final Duration? timeout;
   final Task<T> task;
 
-  CancelableTask({required super.taskId, required this.task, this.timeout});
+  CancelableTask({
+    required super.managerId,
+    required super.taskId,
+    required this.task,
+    this.timeout,
+  });
 
   bool cancel() {
     if (isCompleted) return false;
@@ -37,10 +42,12 @@ class CancelableTask<T> extends TaskState<T> {
       }
 
       completer.complete(await future);
+      emitNewState();
     } catch (error) {
       isError = !isTimedOut;
       if (!completer.isCompleted) {
         completer.completeError(error);
+        emitNewState();
       }
     }
     return future;

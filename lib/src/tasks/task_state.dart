@@ -4,7 +4,7 @@ import 'dart:developer' as dev;
 import '../../awesome_task_manager.dart';
 
 abstract class TaskState<T> {
-  final String taskId;
+  final String managerId, taskId;
   final Completer<T> completer;
 
   final void Function(
@@ -27,7 +27,10 @@ abstract class TaskState<T> {
 
   late final TaskStatus<T> status;
 
-  TaskState({required this.taskId, this.customDevLog = dev.log})
+  TaskState(
+      {required this.managerId,
+      required this.taskId,
+      this.customDevLog = dev.log})
       : completer = Completer() {
     status = TaskStatus(this);
     completer.future

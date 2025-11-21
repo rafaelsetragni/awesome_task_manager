@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class IncrementActionController {
+class CountActionController {
   final fakeDelay = const Duration(milliseconds: 1500);
 
   int get counter => _counter;
@@ -41,8 +41,8 @@ class IncrementActionController {
 
   Future<void> increment() async {
     await taskManager.executeSequentialTask<int>(
-      callerReference: 'IncrementActionController',
-      taskId: 'count',
+      callerReference: 'CountActionController',
+      taskId: 'increment',
       task: (taskStatus) async {
         await Future.delayed(fakeDelay);
         return ++_counter;
@@ -52,8 +52,8 @@ class IncrementActionController {
 
   Future<void> decrement() async {
     await taskManager.executeSequentialTask<int>(
-      callerReference: 'IncrementActionController',
-      taskId: 'count',
+      callerReference: 'CountActionController',
+      taskId: 'decrement',
       task: (taskStatus) async {
         await Future.delayed(fakeDelay);
         return --_counter;
@@ -66,34 +66,11 @@ Widget getCircularProgress() =>
     const SizedBox(width: 18, height: 18, child: CircularProgressIndicator());
 
 class _MyHomePageState extends State<MyHomePage> {
-  final countingController = IncrementActionController();
-
-  final SequentialQueueManager taskManager =
-      AwesomeTaskManager().createSequentialQueueManager();
+  final countingController = CountActionController();
 
   @override
   void initState() {
     super.initState();
-  }
-
-  void increment() {
-    taskManager.executeSequentialTask(
-      callerReference: '_MyHomePageState',
-      taskId: 'incrementWidget',
-      task: (status) async {
-        await countingController.increment();
-      },
-    );
-  }
-
-  void decrement() {
-    taskManager.executeSequentialTask(
-      callerReference: '_MyHomePageState',
-      taskId: 'decrementWidget',
-      task: (status) async {
-        await countingController.increment();
-      },
-    );
   }
 
   @override
@@ -110,10 +87,12 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${countingController.counter}',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            AwesomeTaskObserver(builder: (context, snapshot) {
+              return Text(
+                '${countingController.counter}',
+                style: Theme.of(context).textTheme.headlineMedium,
+              );
+            }),
           ],
         ),
       ),
@@ -121,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           AwesomeTaskObserver(
-              taskId: 'incrementWidget',
+              taskId: 'increment',
               builder: (context, snapshot) {
                 bool isLoading =
                     snapshot.connectionState == ConnectionState.waiting ||
@@ -129,12 +108,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 return FloatingActionButton(
                   onPressed: isLoading ? null : countingController.increment,
                   tooltip: 'Increment',
-                  child: isLoading ? null : const Icon(Icons.plus_one),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.plus_one),
                 );
               }),
           const SizedBox(height: 16),
           AwesomeTaskObserver(
-              taskId: 'decrementWidget',
+              taskId: 'decrement',
               builder: (context, snapshot) {
                 bool isLoading =
                     snapshot.connectionState == ConnectionState.waiting ||
@@ -142,7 +123,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 return FloatingActionButton(
                   onPressed: isLoading ? null : countingController.decrement,
                   tooltip: 'Decrement',
-                  child: isLoading ? null : const Icon(Icons.exposure_minus_1),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.exposure_minus_1),
                 );
               }),
         ],

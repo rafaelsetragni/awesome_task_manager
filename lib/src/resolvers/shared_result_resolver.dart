@@ -12,6 +12,7 @@ class SharedResultResolver<T> extends TaskResolver<T> {
   final CacheRepository cache;
 
   SharedResultResolver({
+    required super.managerId,
     required super.taskId,
     CacheRepository? cacheRepository,
   }) : cache = cacheRepository ?? MemoryRepository();
@@ -38,7 +39,11 @@ class SharedResultResolver<T> extends TaskResolver<T> {
       );
     }
 
-    CancelableTask<T> completer = CancelableTask(taskId: taskId, task: task);
+    CancelableTask<T> completer = CancelableTask(
+      managerId: managerId,
+      taskId: taskId,
+      task: task,
+    );
     taskQueue.add(completer);
 
     return executeSingleTask(

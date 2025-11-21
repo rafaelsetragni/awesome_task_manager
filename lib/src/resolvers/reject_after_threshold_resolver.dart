@@ -9,6 +9,7 @@ class RejectAfterThresholdResolver<T> extends TaskResolver<T> {
   final int taskThreshold;
 
   RejectAfterThresholdResolver({
+    required super.managerId,
     required super.taskId,
     required this.taskThreshold,
   }) {
@@ -24,6 +25,7 @@ class RejectAfterThresholdResolver<T> extends TaskResolver<T> {
     }
 
     CancelableTask<T> completer = CancelableTask(
+      managerId: managerId,
       taskId: taskId,
       task: task,
     );

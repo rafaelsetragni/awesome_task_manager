@@ -7,9 +7,9 @@ import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import '../types/types.dart';
 
 abstract class TaskResolver<T> {
-  final String taskId;
+  final String managerId, taskId;
 
-  TaskResolver({required this.taskId});
+  TaskResolver({required this.managerId, required this.taskId});
 
   final Queue<CancelableTask<T>> taskQueue = Queue();
   Stopwatch getStopwatch() => Stopwatch();

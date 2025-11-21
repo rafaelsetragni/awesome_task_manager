@@ -4,10 +4,11 @@ abstract class TaskStatus<T> {
   factory TaskStatus(TaskState taskReference) =>
       CancelableTaskStatus<T>(taskReference);
 
-  factory TaskStatus.empty({required String? taskId}) =>
-      EmptyTaskStatus(taskId);
+  factory TaskStatus.empty() => EmptyTaskStatus(managerId: '', taskId: '');
 
-  String? get taskId;
+  String get managerId;
+
+  String get taskId;
 
   int get taskHashcode;
 
@@ -27,10 +28,13 @@ abstract class TaskStatus<T> {
 }
 
 class EmptyTaskStatus<T> implements TaskStatus<T> {
-  EmptyTaskStatus(this.taskId);
+  EmptyTaskStatus({required this.managerId, required this.taskId});
 
   @override
-  final String? taskId;
+  final String taskId;
+
+  @override
+  final String managerId;
 
   @override
   int get taskHashcode => hashCode;
@@ -61,6 +65,9 @@ class CancelableTaskStatus<T> implements TaskStatus<T> {
   final TaskState _taskReference;
 
   CancelableTaskStatus(this._taskReference);
+
+  @override
+  String get managerId => _taskReference.managerId;
 
   @override
   String get taskId => _taskReference.taskId;

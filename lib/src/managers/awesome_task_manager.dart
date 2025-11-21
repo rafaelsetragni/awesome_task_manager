@@ -8,18 +8,21 @@ abstract class AwesomeTaskManager {
   factory AwesomeTaskManager() => _instance ??= AwesomeTaskManagerImpl();
 
   Stream<TaskStatus> getTaskStatusStream({String? taskId});
+  Stream<TaskStatus> getManagerTaskStatusStream({String? managerId});
 
-  SharedResultManager createSharedResultManager();
+  SharedResultManager createSharedResultManager({required String managerId});
 
-  SequentialQueueManager createSequentialQueueManager();
+  SequentialQueueManager createSequentialQueueManager(
+      {required String managerId});
 
-  TaskPoolManager createTaskPoolManager({int poolSize = 2});
+  TaskPoolManager createTaskPoolManager(
+      {required String managerId, int poolSize = 2});
 
   RejectedAfterThresholdManager createRejectedAfterThresholdManager(
-      {int taskThreshold = 1});
+      {required String managerId, int taskThreshold = 1});
 
   CancelPreviousTaskManager createCancelPreviousTaskManager(
-      {int maximumParallelTasks = 1});
+      {required String managerId, int maximumParallelTasks = 1});
 
   void registerLogListener(LogListener listener);
   void unregisterLogListener(LogListener listener);

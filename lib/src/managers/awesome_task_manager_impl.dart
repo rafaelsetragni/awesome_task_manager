@@ -12,25 +12,43 @@ class AwesomeTaskManagerImpl implements AwesomeTaskManager {
       TaskManager.getStatusStream(taskId: taskId);
 
   @override
-  SharedResultManager createSharedResultManager() => SharedResultManager();
+  Stream<TaskStatus> getManagerTaskStatusStream({String? managerId}) =>
+      TaskManager.getManagerStatusStream(managerId: managerId);
 
   @override
-  SequentialQueueManager createSequentialQueueManager() =>
-      SequentialQueueManager();
+  SharedResultManager createSharedResultManager({
+    required String managerId,
+  }) =>
+      SharedResultManager(managerId: managerId);
 
   @override
-  TaskPoolManager createTaskPoolManager({int poolSize = 2}) =>
-      TaskPoolManager(poolSize: poolSize);
+  SequentialQueueManager createSequentialQueueManager({
+    required String managerId,
+  }) =>
+      SequentialQueueManager(managerId: managerId);
 
   @override
-  RejectedAfterThresholdManager createRejectedAfterThresholdManager(
-          {int taskThreshold = 1}) =>
-      RejectedAfterThresholdManager(taskThreshold: taskThreshold);
+  TaskPoolManager createTaskPoolManager({
+    required String managerId,
+    int poolSize = 2,
+  }) =>
+      TaskPoolManager(managerId: managerId, poolSize: poolSize);
 
   @override
-  CancelPreviousTaskManager createCancelPreviousTaskManager(
-          {int maximumParallelTasks = 1}) =>
-      CancelPreviousTaskManager(maximumParallelTasks: maximumParallelTasks);
+  RejectedAfterThresholdManager createRejectedAfterThresholdManager({
+    required String managerId,
+    int taskThreshold = 1,
+  }) =>
+      RejectedAfterThresholdManager(
+          managerId: managerId, taskThreshold: taskThreshold);
+
+  @override
+  CancelPreviousTaskManager createCancelPreviousTaskManager({
+    required String managerId,
+    int maximumParallelTasks = 1,
+  }) =>
+      CancelPreviousTaskManager(
+          managerId: managerId, maximumParallelTasks: maximumParallelTasks);
 
   @override
   void registerLogListener(LogListener listener) {

@@ -8,9 +8,12 @@ import '../integrations/manager_integration_test.dart';
 class FakeTaskResolver<T> extends Fake implements TaskResolver<T> {}
 
 void main() {
+  final managerId = 'manager 1';
+
   group('TaskManager - exceptions', () {
     test('TaskManager - invalid parameters', () async {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+      final taskManager =
+          AwesomeTaskManager().createSharedResultManager(managerId: managerId);
       expect(
           () => taskManager.executeTaskSharingResult<String>(
               callerReference: 'TaskManager Test',
@@ -36,7 +39,8 @@ void main() {
 
   group('TaskManager - resolvers', () {
     test('TaskManager - executeTask in resultSharing mode', () async {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+      final taskManager =
+          AwesomeTaskManager().createSharedResultManager(managerId: managerId);
 
       late Future<TaskResult<int>> future;
       expect(
@@ -51,7 +55,8 @@ void main() {
     });
 
     test('TaskManager - executeTask in sequentialQueue mode', () async {
-      final taskManager = AwesomeTaskManager().createSequentialQueueManager();
+      final taskManager = AwesomeTaskManager()
+          .createSequentialQueueManager(managerId: managerId);
 
       late Future<TaskResult<int>> future;
       expect(
@@ -68,8 +73,8 @@ void main() {
 
     test('TaskManager - executeTask in TaskPool mode', () async {
       const poolSize = 3;
-      final taskManager =
-          AwesomeTaskManager().createTaskPoolManager(poolSize: poolSize);
+      final taskManager = AwesomeTaskManager()
+          .createTaskPoolManager(managerId: managerId, poolSize: poolSize);
 
       List<Future<TaskResult<int>>> futures = [];
       for (int count = 0; count < poolSize; count++) {
@@ -123,7 +128,9 @@ void main() {
 
     test('TaskManager - executeTask in rejectAfterThreshold mode', () async {
       final taskManager =
-          AwesomeTaskManager().createRejectedAfterThresholdManager();
+          AwesomeTaskManager().createRejectedAfterThresholdManager(
+        managerId: managerId,
+      );
 
       late Future<TaskResult<int>> future;
       expect(
@@ -169,7 +176,9 @@ void main() {
 
   group('resetManager', () {
     test('reset should clear all internal list controls', () {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+      final taskManager = AwesomeTaskManager().createSharedResultManager(
+        managerId: managerId,
+      );
       final result = taskManager.executeTaskSharingResult<String>(
           callerReference: 'resetManager',
           taskId: 'task1',
@@ -187,14 +196,38 @@ void main() {
   });
 
   group('TaskManager - getTaskStatusStream', () {
-    test('should return the same stream for the same taskId', () {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+    test('should return the same stream event for the same taskId', () async {
+      final taskManager = AwesomeTaskManager().createSharedResultManager(
+        managerId: managerId,
+      );
       const taskId = 'my_task';
 
-      final stream1 = taskManager.getTaskStatusStream(taskId: taskId);
-      final stream2 = taskManager.getTaskStatusStream(taskId: taskId);
+      final events1 = <TaskStatus?>[];
+      final events2 = <TaskStatus?>[];
 
-      expect(identical(stream1, stream2), isTrue);
+      final stream1 = AwesomeTaskManager().getTaskStatusStream(taskId: taskId);
+      final stream2 = AwesomeTaskManager().getTaskStatusStream(taskId: taskId);
+
+      final sub1 = stream1.listen(events1.add);
+      final sub2 = stream2.listen(events2.add);
+
+      expect(identical(stream1, stream2), isFalse);
+
+      await taskManager.executeTaskSharingResult(
+        callerReference: 'TaskManager Test',
+        taskId: taskId,
+        task: (status) async {
+          return 1;
+        },
+      );
+
+      await Future.delayed(Duration.zero);
+
+      await sub1.cancel();
+      await sub2.cancel();
+
+      expect(events1, equals(events2),
+          reason: 'Both streams must emit exactly the same events');
 
       taskManager.resetManager();
     });

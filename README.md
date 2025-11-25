@@ -7,12 +7,13 @@
 
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](#)
 [![pub package](https://img.shields.io/pub/v/awesome_task_manager.svg)](https://pub.dev/packages/awesome_task_manager)
-![Full tests workflow](https://github.com/rafaelsetragni/awesome_task_manager/actions/workflows/dart.yml/badge.svg?branch=master)
-![codecov badge](https://codecov.io/gh/rafaelsetragni/awesome_task_manager/branch/master/graph/badge.svg)
+![Full tests workflow](https://github.com/rafaelsetragni/awesome_task_manager/actions/workflows/dart.yml/badge.svg?branch=main)
+[![codecov](https://codecov.io/github/rafaelsetragni/awesome_task_manager/graph/badge.svg?token=7BRG8JcWTQ)](https://codecov.io/github/rafaelsetragni/awesome_task_manager)
 
 <br>
 
-Execute, manage and synchronize concurrent tasks across all Flutter application with AwesomeTaskManager.<br>
+Execute, manage and synchronize concurrent tasks across all Flutter application with AwesomeTaskManager.
+
 Ideal for optimizing resource usage, preventing race conditions, and ensuring efficient task execution in your Flutter applications.
 
 <br>
@@ -24,7 +25,7 @@ Ideal for optimizing resource usage, preventing race conditions, and ensuring ef
 The Awesome Task Manager plugin was mainly designed to:
 
 - 🔄 Synchronize concurrent processes to avoid race conditions.
-- 🚫 Prevent redundant task executions, typically caused by double-tapping.
+- 🚫 Prevent redundant task executions, typically caused by double-tapping or API calls.
 - 🔒 Control access to resources that are not thread-safe, preventing data loss.
 - ❌ Cancel tasks at any time and make the processes exit gracefully.
 - 💾 Cache API requests to save backend resources.
@@ -101,7 +102,7 @@ To use AwesomeTaskManager, add it to your Flutter project by including the follo
 
 ```yaml
 dependencies:
-  awesome_task_manager: ^1.0.0 // <- always ensure to use the last version available
+  awesome_task_manager: ^1.0.1 // <- always ensure to use the last version available
 ```
 
 Then run the following command at your root project folder to download the package:

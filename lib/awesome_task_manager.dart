@@ -1,7 +1,11 @@
-library awesome_task_manager;
+/// The Awesome Task Manager is a powerful and flexible library for managing
+/// concurrent tasks in Flutter applications. It helps prevent race conditions,
+/// optimize resource usage, and provides fine-grained control over task execution.
+library;
 
 export 'src/exceptions/task_exceptions.dart';
 export 'src/extensions/duration_extension.dart';
+export 'src/logs/log_listener.dart';
 export 'src/managers/awesome_task_manager.dart';
 export 'src/managers/task_manager.dart';
 export 'src/managers/task_manager_impl.dart';

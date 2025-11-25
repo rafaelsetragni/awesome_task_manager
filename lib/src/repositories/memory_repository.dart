@@ -2,9 +2,21 @@ import 'dart:core';
 
 import 'cache_repository.dart';
 
+/// In-memory implementation of [CacheRepository].
+///
+/// Stores cached items inside a simple in-process [Map], making this repository
+/// suitable for high-performance and short-lived caching scenarios such as
+/// UI state, session tokens, and temporary computation results.
+///
+/// Expired entries are automatically removed upon access.
 class MemoryRepository extends CacheRepository {
+  /// Internal storage container mapping string keys to tuple `(value, expirationDate)`.
+  ///
+  /// Values are kept until manually cleared or automatically removed when expired.
   final Map<String, (dynamic, DateTime)> cache = {};
 
+  /// If the item exists and has not expired, returns the cached tuple.
+  /// Otherwise, removes the stale entry and returns `null`.
   @override
   Future<(T, DateTime)?> read<T>({required String key}) {
     final data = cache[key];
@@ -16,6 +28,7 @@ class MemoryRepository extends CacheRepository {
     }
   }
 
+  /// Automatically cleans expired entries while collecting those matching type [T].
   @override
   Future<List<(String key, T value, DateTime expirationDate)>>
       readAll<T>() async {
@@ -32,6 +45,7 @@ class MemoryRepository extends CacheRepository {
     return values;
   }
 
+  /// Removes a cached item and returns it if it matches type [T], otherwise `null`.
   @override
   Future<(T, DateTime)?> remove<T>({required String key}) async {
     final data = cache.remove(key);
@@ -39,6 +53,7 @@ class MemoryRepository extends CacheRepository {
     return null;
   }
 
+  /// Skips storage if the expiration date is already in the past.
   @override
   Future<bool> write<T>(
       {required String key,
@@ -49,6 +64,7 @@ class MemoryRepository extends CacheRepository {
     return true;
   }
 
+  /// Writes multiple entries and returns `true` only if all writes succeed.
   @override
   Future<bool> writeAll<T>(
       {required List<(String key, T value, DateTime expirationDate)>
@@ -62,6 +78,7 @@ class MemoryRepository extends CacheRepository {
     return written;
   }
 
+  /// Clears the entire in-memory cache, ignoring type filtering.
   @override
   Future<bool> clearAll<T>() {
     cache.clear();

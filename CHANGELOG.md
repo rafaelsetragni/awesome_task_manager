@@ -1,3 +1,10 @@
+## 1.0.1
+
+* Prepared for publishing on pub.dev with high documentation coverage.
+* Fixed incorrect image and banner paths in README, ensuring assets render properly on pub.dev and GitHub.
+* Added extensive documentation for all public classes, methods, streams, observers, resolvers and lifecycle internals.
+* Fully documented core architecture (TaskState, TaskStatus, TaskResolver, CancelableTask, ObservableStream).
+
 ## 1.0.0
 
 * **Initial release of Awesome Task Manager!**

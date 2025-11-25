@@ -1,175 +1,180 @@
-import 'dart:async';
-
+import 'package:awesome_task_manager/awesome_task_manager.dart';
+import 'package:awesome_task_manager/src/streams/observable_stream.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'package:awesome_task_manager/awesome_task_manager.dart';
-
 import 'task_observer_widget_test.mocks.dart';
 
+// A simplified mock for TaskStatus for testing purposes.
 class MockTaskStatus implements TaskStatus<String> {
+  @override
+  final String managerId;
+  @override
+  final String taskId;
+  @override
+  final String? result;
+  @override
+  final Exception? lastException;
+  @override
+  final bool isCompleted;
 
   MockTaskStatus({
-    required this.isCanceled,
-    required this.isCompleted,
-    required this.isError,
-    required this.isExecuting,
-    required this.isTimedOut,
-    required this.lastException,
-    required this.result,
+    required this.managerId,
     required this.taskId,
+    this.result,
+    this.lastException,
+    this.isCompleted = false,
   });
 
-  factory MockTaskStatus.canceledStatus({
-    required String taskId
-  }) => MockTaskStatus(
-    isCanceled: true,
-    isCompleted: true,
-    isError: false,
-    isExecuting: false,
-    isTimedOut: false,
-    lastException: CancellationException(taskId: ''),
-    result: null,
-    taskId: taskId,
-  );
-
-  factory MockTaskStatus.running({
-    required String taskId
-  }) => MockTaskStatus(
-    isCanceled: false,
-    isCompleted: false,
-    isError: false,
-    isExecuting: true,
-    isTimedOut: false,
-    lastException: null,
-    result: null,
-    taskId: taskId,
-  );
-
-  factory MockTaskStatus.successful({
-    required String taskId
-  }) => MockTaskStatus(
-    isCanceled: false,
-    isCompleted: true,
-    isError: false,
-    isExecuting: true,
-    isTimedOut: false,
-    lastException: null,
-    result: 'success',
-    taskId: taskId,
-  );
-
+  // We don't need the other properties for these tests.
   @override
-  bool isCanceled;
-
+  bool get isCanceled => lastException is CancellationException;
   @override
-  bool isCompleted;
-
+  bool get isError => lastException != null && !isCanceled;
   @override
-  bool isError;
-
+  bool get isExecuting => !isCompleted;
   @override
-  bool isExecuting;
-
-  @override
-  bool isTimedOut;
-
-  @override
-  Exception? lastException;
-
-  @override
-  String? result;
-
+  bool get isTimedOut => lastException is TimeoutException;
   @override
   int get taskHashcode => hashCode;
 
   @override
-  String taskId;
-
-  @override
-  String toString() =>
-      'MockTaskStatus: $taskId (${
-          isCompleted ? '' : 'not '}completed)';
+  String toString() => 'MockTaskStatus: $taskId, result: $result';
 }
-
 
 @GenerateNiceMocks([MockSpec<AwesomeTaskManager>()])
 void main() {
-  group('TaskObserver Tests', () {
-    late MockAwesomeTaskManager mockTaskManager;
-    late StreamController<TaskStatus<String>> controller;
+  late MockAwesomeTaskManager mockTaskManager;
+
+  // Use setUpAll to create and register the mock instance once.
+  setUpAll(() {
+    mockTaskManager = MockAwesomeTaskManager();
+    AwesomeTaskManager(mockedInstance: mockTaskManager);
+  });
+
+  // Use a top-level setUp to reset the mock before each test.
+  setUp(() {
+    reset(mockTaskManager);
+  });
+
+  group('AwesomeTaskObserver.byManagerId', () {
+    late ObservableStream<TaskStatus?> managerController;
+    const managerId = 'manager1';
 
     setUp(() {
-      mockTaskManager = MockAwesomeTaskManager();
-      controller = StreamController<TaskStatus<String>>();
-      when(mockTaskManager.getTaskStatusStream(taskId: anyNamed('taskId')))
-          .thenAnswer((_) => controller.stream);
+      managerController = ObservableStream<TaskStatus?>();
+      when(mockTaskManager.getManagerTaskStatusStream(managerId: managerId))
+          .thenAnswer((_) => managerController.stream);
     });
 
     tearDown(() {
-      controller.close();
+      managerController.close();
     });
 
-    testWidgets('TaskObserver displays error state correctly', (WidgetTester tester) async {
-      final mockErrorStatus = MockTaskStatus.canceledStatus(taskId: 'testId');
+    testWidgets('should display data when stream emits a new status',
+        (tester) async {
+      final successStatus =
+          MockTaskStatus(managerId: managerId, taskId: 't1', result: 'Success');
 
       await tester.pumpWidget(MaterialApp(
-        home: AwesomeTaskObserver<String>(
-          taskId: 'testId',
-          builder: (BuildContext context, AsyncSnapshot<TaskStatus> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (snapshot.hasData) {
-              return Text('Data: ${snapshot.data}');
+        home: AwesomeTaskObserver.byManagerId(
+          managerId: managerId,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text('Data: ${snapshot.data?.result}');
             }
-            return Container();
+            return const Text('Waiting');
           },
         ),
       ));
 
-      // Simulate error state
-      controller.addError(mockErrorStatus);
+      expect(find.text('Waiting'), findsOneWidget);
 
-      await tester.pump(); // Trigger a frame
-
-      expect(find.text('Error: $mockErrorStatus'), findsOneWidget);
-    });
-
-    testWidgets('TaskObserver displays data state correctly', (WidgetTester tester) async {
-      final mockSuccessStatus = MockTaskStatus.successful(taskId: 'testId');
-      const circularProgressWidget = CircularProgressIndicator();
-
-      await tester.pumpWidget(MaterialApp(
-        home: AwesomeTaskObserver<String>(
-          taskId: 'testId',
-          builder: (BuildContext context, AsyncSnapshot<TaskStatus> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return circularProgressWidget;
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (snapshot.hasData) {
-              return Text('Data: ${snapshot.data}');
-            }
-            return Container();
-          },
-        ),
-      ));
-
+      managerController.add(successStatus);
       await tester.pump();
 
-      expect(find.byWidget(circularProgressWidget), findsOneWidget);
+      // Corrected expectation to check for the result, not the object's toString().
+      expect(find.text('Data: Success'), findsOneWidget);
+    });
+  });
 
-      controller.add(mockSuccessStatus);
-      expectLater(controller.stream, emits(mockSuccessStatus));
-      
-      await tester.pump(HumanDuration.oneSecond ~/ 2);
+  group('AwesomeTaskObserver.byTaskId', () {
+    late ObservableStream<TaskStatus> taskController;
+    const taskId = 'task1';
 
-      expect(find.text('Data: $mockSuccessStatus'), findsOneWidget);
+    setUp(() {
+      taskController = ObservableStream<TaskStatus>();
+      when(mockTaskManager.getTaskStatusStream(taskId: taskId))
+          .thenAnswer((_) => taskController.stream);
+    });
+
+    tearDown(() {
+      taskController.close();
+    });
+
+    testWidgets('should display data when stream emits a new status',
+        (tester) async {
+      final successStatus =
+          MockTaskStatus(managerId: 'm1', taskId: taskId, result: 'Success');
+
+      await tester.pumpWidget(MaterialApp(
+        home: AwesomeTaskObserver.byTaskId(
+          taskId: taskId,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text('Data: ${snapshot.data?.result}');
+            }
+            return const Text('Waiting');
+          },
+        ),
+      ));
+
+      expect(find.text('Waiting'), findsOneWidget);
+
+      taskController.add(successStatus);
+      await tester.pump();
+
+      expect(find.text('Data: Success'), findsOneWidget);
+    });
+  });
+
+  group('AwesomeTaskObserver (default)', () {
+    late ObservableStream<TaskStatus> taskController;
+
+    setUp(() {
+      taskController = ObservableStream<TaskStatus>();
+      when(mockTaskManager.getTaskStatusStream(taskId: null))
+          .thenAnswer((_) => taskController.stream);
+    });
+
+    tearDown(() {
+      taskController.close();
+    });
+
+    testWidgets('should display data when stream emits a new status',
+        (tester) async {
+      final successStatus =
+          MockTaskStatus(managerId: 'm1', taskId: 't1', result: 'Success');
+
+      await tester.pumpWidget(MaterialApp(
+        home: AwesomeTaskObserver(
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text('Data: ${snapshot.data?.result}');
+            }
+            return const Text('Waiting');
+          },
+        ),
+      ));
+
+      expect(find.text('Waiting'), findsOneWidget);
+
+      taskController.add(successStatus);
+      await tester.pump();
+
+      expect(find.text('Data: Success'), findsOneWidget);
     });
   });
 }

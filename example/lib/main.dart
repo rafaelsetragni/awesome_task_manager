@@ -37,7 +37,7 @@ class CountActionController {
   int _counter = 0;
 
   final SequentialQueueManager taskManager =
-      AwesomeTaskManager().createSequentialQueueManager();
+      AwesomeTaskManager().createSequentialQueueManager(managerId: 'counter');
 
   Future<void> increment() async {
     await taskManager.executeSequentialTask<int>(
@@ -87,19 +87,21 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            AwesomeTaskObserver(builder: (context, snapshot) {
-              return Text(
-                '${countingController.counter}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              );
-            }),
+            AwesomeTaskObserver.byManagerId(
+                managerId: 'counter',
+                builder: (context, snapshot) {
+                  return Text(
+                    '${countingController.counter}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  );
+                }),
           ],
         ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          AwesomeTaskObserver(
+          AwesomeTaskObserver.byTaskId(
               taskId: 'increment',
               builder: (context, snapshot) {
                 bool isLoading =
@@ -114,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }),
           const SizedBox(height: 16),
-          AwesomeTaskObserver(
+          AwesomeTaskObserver.byTaskId(
               taskId: 'decrement',
               builder: (context, snapshot) {
                 bool isLoading =

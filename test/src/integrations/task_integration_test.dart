@@ -1,6 +1,6 @@
-import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
 import 'package:awesome_task_manager/src/status/task_status.dart';
+import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -8,6 +8,7 @@ void main() {
     test('isCancelled returns false when respective task is not cancelled',
         () async {
       var cancelableTask = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) => Future.delayed(const Duration(milliseconds: 250))
               .then((value) => ''));
@@ -25,6 +26,7 @@ void main() {
         'isCancelled returns true when respective task is cancelled before execution',
         () async {
       var cancelableTask1 = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) => Future.delayed(const Duration(milliseconds: 250))
               .then((value) => ''));
@@ -42,6 +44,7 @@ void main() {
         'isCancelled returns true when respective task is cancelled during execution',
         () async {
       var cancelableTask1 = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) => Future.delayed(const Duration(milliseconds: 250))
               .then((value) => ''));
@@ -66,6 +69,7 @@ void main() {
         'isCancelled returns true when respective task is cancelled after execution',
         () async {
       var cancelableTask1 = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) => Future.delayed(const Duration(milliseconds: 250))
               .then((value) => ''));
@@ -86,6 +90,7 @@ void main() {
 
     test('isCompleted returns true only after task is completed', () async {
       var cancelableTask = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) =>
               Future.delayed(const Duration(milliseconds: 250), () => ''));
@@ -108,6 +113,7 @@ void main() {
 
     test('isTimedOut returns true when task times out', () async {
       var cancelableTask = CancelableTask<String>(
+          managerId: 'test',
           taskId: 'status',
           task: (status) async {
             await Future.delayed(const Duration(seconds: 1));
@@ -132,6 +138,7 @@ void main() {
 
     test('isOnError returns true when task encounters an error', () async {
       var cancelableTask = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'status',
         task: (status) async {
           await Future.delayed(const Duration(milliseconds: 10));

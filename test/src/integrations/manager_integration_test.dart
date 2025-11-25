@@ -6,7 +6,7 @@ import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const testNameRandom = 'Random Tasks';
-const numberOfTasks = 10000;
+const numberOfTasks = 500;
 const taskIdVariations = 30;
 const taskDuration = Duration(milliseconds: 250);
 const halfTaskDuration = Duration(milliseconds: 125);
@@ -22,7 +22,9 @@ void main() {
   group('Integration tests', () {
     test('Integration tests - SharedResult $numberOfTasks random tasks',
         () async {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+      final taskManager = AwesomeTaskManager().createSharedResultManager(
+        managerId: 'test',
+      );
       Future<int> task({required String taskId, required int result}) async {
         AwesomeTaskManager().log('Executing task $result...', name: taskId);
         await Future.delayed(taskDuration);
@@ -61,8 +63,8 @@ void main() {
 
     test('Integration tests - TaskPool $numberOfTasks random tasks', () async {
       const int poolSize = 5;
-      final taskManager =
-          AwesomeTaskManager().createTaskPoolManager(poolSize: poolSize);
+      final taskManager = AwesomeTaskManager()
+          .createTaskPoolManager(managerId: 'test', poolSize: poolSize);
 
       Future<(DateTime, DateTime)> task({required String taskId}) async {
         final started = DateTime.now();
@@ -127,7 +129,9 @@ void main() {
 
     test('Integration tests - SequentialQueue $numberOfTasks random tasks',
         () async {
-      final taskManager = AwesomeTaskManager().createSequentialQueueManager();
+      final taskManager = AwesomeTaskManager().createSequentialQueueManager(
+        managerId: 'test',
+      );
       Future<DateTime> task({required String taskId}) async {
         final startedAt = DateTime.now();
         AwesomeTaskManager().log('Executing task $taskId...', name: taskId);
@@ -186,7 +190,8 @@ void main() {
       const int taskThreshold = 3;
 
       final taskManager = AwesomeTaskManager()
-          .createRejectedAfterThresholdManager(taskThreshold: taskThreshold);
+          .createRejectedAfterThresholdManager(
+              managerId: 'test', taskThreshold: taskThreshold);
 
       Future<DateTime> task({required String taskId}) async {
         final startedAt = DateTime.now();

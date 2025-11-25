@@ -4,7 +4,7 @@ abstract class TaskStatus<T> {
   factory TaskStatus(TaskState taskReference) =>
       CancelableTaskStatus<T>(taskReference);
 
-  factory TaskStatus.empty() => EmptyTaskStatus(managerId: '', taskId: '');
+  // factory TaskStatus.empty() => EmptyTaskStatus(managerId: '', taskId: '');
 
   String get managerId;
 
@@ -25,40 +25,6 @@ abstract class TaskStatus<T> {
   Exception? get lastException;
 
   T? get result;
-}
-
-class EmptyTaskStatus<T> implements TaskStatus<T> {
-  EmptyTaskStatus({required this.managerId, required this.taskId});
-
-  @override
-  final String taskId;
-
-  @override
-  final String managerId;
-
-  @override
-  int get taskHashcode => hashCode;
-
-  @override
-  bool get isCompleted => false;
-
-  @override
-  bool get isCanceled => false;
-
-  @override
-  bool get isExecuting => false;
-
-  @override
-  bool get isTimedOut => false;
-
-  @override
-  bool get isError => false;
-
-  @override
-  Exception? get lastException => null;
-
-  @override
-  T? get result => null;
 }
 
 class CancelableTaskStatus<T> implements TaskStatus<T> {

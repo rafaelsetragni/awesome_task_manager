@@ -1,12 +1,12 @@
 import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:flutter/cupertino.dart';
 
-class AwesomeTaskObserver<T> extends StatelessWidget {
+class AwesomeTaskObserver<T> extends StatefulWidget {
   final String? taskId, managerId;
-  final AsyncWidgetBuilder<TaskStatus> builder;
+  final AsyncWidgetBuilder<TaskStatus?> builder;
 
   factory AwesomeTaskObserver({
-    required AsyncWidgetBuilder<TaskStatus> builder,
+    required AsyncWidgetBuilder<TaskStatus?> builder,
   }) =>
       AwesomeTaskObserver._(
         builder: builder,
@@ -15,7 +15,7 @@ class AwesomeTaskObserver<T> extends StatelessWidget {
       );
 
   factory AwesomeTaskObserver.byManagerId({
-    required AsyncWidgetBuilder<TaskStatus> builder,
+    required AsyncWidgetBuilder<TaskStatus?> builder,
     required String managerId,
   }) =>
       AwesomeTaskObserver._(
@@ -25,7 +25,7 @@ class AwesomeTaskObserver<T> extends StatelessWidget {
       );
 
   factory AwesomeTaskObserver.byTaskId({
-    required AsyncWidgetBuilder<TaskStatus> builder,
+    required AsyncWidgetBuilder<TaskStatus?> builder,
     required String taskId,
   }) =>
       AwesomeTaskObserver._(
@@ -42,15 +42,28 @@ class AwesomeTaskObserver<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<TaskStatus>(
-        stream: managerId != null
-            ? AwesomeTaskManager()
-                .getManagerTaskStatusStream(managerId: managerId)
-            : AwesomeTaskManager().getTaskStatusStream(taskId: taskId),
+  State<AwesomeTaskObserver<T>> createState() => _AwesomeTaskObserverState<T>();
+}
+
+class _AwesomeTaskObserverState<T> extends State<AwesomeTaskObserver<T>> {
+  late final Stream<TaskStatus?> stream;
+
+  @override
+  void initState() {
+    stream = widget.managerId != null
+        ? AwesomeTaskManager()
+            .getManagerTaskStatusStream(managerId: widget.managerId)
+        : AwesomeTaskManager().getTaskStatusStream(taskId: widget.taskId);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<TaskStatus?>(
+        stream: stream,
         builder: (context, snapshot) {
           AwesomeTaskManager()
-              .log('AwesomeTaskObserver rebuilt for taskId: $taskId');
-          return builder(context, snapshot);
+              .log('AwesomeTaskObserver rebuilt for taskId: ${widget.taskId}');
+          return widget.builder(context, snapshot);
         },
       );
 }

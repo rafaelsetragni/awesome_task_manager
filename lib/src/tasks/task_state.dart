@@ -87,11 +87,7 @@ abstract class TaskState<T> {
     if (e is Exception) {
       _lastException = e;
     }
-    switch (e) {
-      case TimeoutException():
-      case CancellationException():
-        customDevLog(e.toString(), name: taskId);
-    }
+    customDevLog(e.toString(), name: taskId);
     return null;
   }
 

@@ -8,11 +8,11 @@ class AwesomeTaskManagerImpl implements AwesomeTaskManager {
   final List<LogListener> _logListeners = [];
 
   @override
-  Stream<TaskStatus> getTaskStatusStream({String? taskId}) =>
+  Stream<TaskStatus?> getTaskStatusStream({String? taskId}) =>
       TaskManager.getStatusStream(taskId: taskId);
 
   @override
-  Stream<TaskStatus> getManagerTaskStatusStream({String? managerId}) =>
+  Stream<TaskStatus?> getManagerTaskStatusStream({String? managerId}) =>
       TaskManager.getManagerStatusStream(managerId: managerId);
 
   @override

@@ -5,10 +5,11 @@ import 'awesome_task_manager_impl.dart';
 
 abstract class AwesomeTaskManager {
   static AwesomeTaskManager? _instance;
-  factory AwesomeTaskManager() => _instance ??= AwesomeTaskManagerImpl();
+  factory AwesomeTaskManager({AwesomeTaskManager? mockedInstance}) =>
+      _instance ??= mockedInstance ?? AwesomeTaskManagerImpl();
 
-  Stream<TaskStatus> getTaskStatusStream({String? taskId});
-  Stream<TaskStatus> getManagerTaskStatusStream({String? managerId});
+  Stream<TaskStatus?> getTaskStatusStream({String? taskId});
+  Stream<TaskStatus?> getManagerTaskStatusStream({String? managerId});
 
   SharedResultManager createSharedResultManager({required String managerId});
 

@@ -146,22 +146,20 @@ class CancelPreviousTaskManager extends TaskManager {
     required String callerReference,
     required String taskId,
     required Task<T> task,
-    Duration cacheDuration = Duration.zero,
     Duration? timeoutDuration,
   }) {
-    final SharedResultResolver<T> resolver = getResolver<T>(
+    final CancelPreviousResolver<T> resolver = getResolver<T>(
         taskId: taskId,
-        factory: () => CancelPreviousResolver(
+        factory: () => CancelPreviousResolver<T>(
               managerId: managerId,
               taskId: taskId,
               maximumParallelTasks: maximumParallelTasks,
-            )) as SharedResultResolver<T>;
+            )) as CancelPreviousResolver<T>;
 
     resolverTypes[taskId] = T;
     return resolver.executeTask(
       callerReference: callerReference,
       task: task,
-      cacheDuration: cacheDuration,
       timeoutDuration: timeoutDuration,
     );
   }

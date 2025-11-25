@@ -6,8 +6,7 @@ import 'package:awesome_task_manager/src/streams/observable_stream.dart';
 import '../resolvers/task_resolver.dart';
 
 abstract class TaskManager {
-  static final ObservableStream<TaskStatus> allTasksStream =
-      ObservableStream(initialValue: TaskStatus.empty());
+  static final ObservableStream<TaskStatus> allTasksStream = ObservableStream();
   static final Map<String, ObservableStream<TaskStatus>>
       taskStreamsByManagerId = {}, taskStreamsByTaskId = {};
 
@@ -23,22 +22,20 @@ abstract class TaskManager {
     final finalTaskId = taskId?.toLowerCase().trim();
     if (finalTaskId == null) return allTasksStream;
     final ObservableStream<TaskStatus> controller =
-        taskStreamsByTaskId[finalTaskId] ??=
-            ObservableStream(initialValue: TaskStatus.empty());
+        taskStreamsByTaskId[finalTaskId] ??= ObservableStream();
     return controller;
   }
 
-  static Stream<TaskStatus<dynamic>> getManagerStatusStream(
+  static Stream<TaskStatus<dynamic>?> getManagerStatusStream(
       {String? managerId}) {
     final finalTaskId = managerId?.toLowerCase().trim();
     if (finalTaskId == null) return allTasksStream.stream;
     final ObservableStream<TaskStatus> controller =
-        taskStreamsByManagerId[finalTaskId] ??=
-            ObservableStream(initialValue: TaskStatus.empty());
+        taskStreamsByManagerId[finalTaskId] ??= ObservableStream();
     return controller.stream;
   }
 
-  static Stream<TaskStatus> getStatusStream<T>({String? taskId}) =>
+  static Stream<TaskStatus?> getStatusStream<T>({String? taskId}) =>
       getStreamControllerByTaskId(taskId: taskId).stream;
 
   final Map<String, TaskResolver> taskResolvers = {};

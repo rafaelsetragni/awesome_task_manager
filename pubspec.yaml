@@ -1,7 +1,7 @@
 name: awesome_task_manager
 description: "Manage and synchronize concurrent tasks, preventing duplicate executions and race conditions while optimizing resource usage in Flutter apps"
 version: 1.0.0
-homepage:
+repository: https://github.com/rafaelsetragni/awesome_task_manager
 
 environment:
   sdk: '>=3.2.3 <4.0.0'

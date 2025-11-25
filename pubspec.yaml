@@ -10,15 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  async: ^2.11.0
-  synchronized: ^3.1.0+1
+  async: ^2.13.0
+  synchronized: ^3.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
-  mockito: ^5.4.4
-  build_runner: ^2.4.8
+  flutter_lints: ^6.0.0
+  mockito: ^5.5.1
+  build_runner: ^2.10.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

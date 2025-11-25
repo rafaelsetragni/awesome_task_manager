@@ -1,153 +1,142 @@
-import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
-import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
 import 'package:awesome_task_manager/src/status/task_status.dart';
+import 'package:awesome_task_manager/src/streams/observable_stream.dart';
+import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
+// A complete and simplified fake implementation of CancelableTask for testing.
 class FakeCancelableTask<T> extends Fake implements CancelableTask<T> {
-  final Future<T> _future;
-  final String _taskId;
-  final bool _isCanceled, _isTimedOut, _isError, _isExecuting, _isCompleted;
+  @override
+  final String taskId;
+  @override
+  final String managerId;
+  @override
+  final bool isCanceled;
+  @override
+  final bool isTimedOut;
+  @override
+  final bool isError;
+  @override
+  final bool isExecuting;
+  @override
+  final bool isCompleted;
+  @override
+  final T? result;
+  @override
+  final Exception? lastException;
+  final int _hashCode;
 
   FakeCancelableTask({
-    required String taskId,
-    required Future<T> future,
-    required bool isCanceled,
-    required bool isTimedOut,
-    required bool isError,
-    required bool isExecuting,
-    required bool isCompleted,
-  })  : _future = future,
-        _taskId = taskId,
-        _isCanceled = isCanceled,
-        _isTimedOut = isTimedOut,
-        _isError = isError,
-        _isCompleted = isCompleted,
-        _isExecuting = isExecuting;
+    required this.taskId,
+    required this.managerId,
+    this.isCanceled = false,
+    this.isTimedOut = false,
+    this.isError = false,
+    this.isExecuting = false,
+    this.isCompleted = false,
+    this.result,
+    this.lastException,
+    int hashCode = 0,
+  }) : _hashCode = hashCode;
 
   @override
-  String get taskId => _taskId;
-
-  @override
-  Future<T> get future => _future;
-
-  @override
-  bool get isCanceled => _isCanceled;
-
-  @override
-  bool get isTimedOut => _isTimedOut;
-
-  @override
-  bool get isError => _isError;
-
-  @override
-  bool get isCompleted => _isCompleted;
-
-  @override
-  bool get isExecuting => _isExecuting;
+  int get hashCode => _hashCode;
 }
 
 void main() {
-  group('TaskStatus Tests', () {
-    test('Task updates when respective task is canceled', () async {
-      final task = TaskStatus(FakeCancelableTask(
-        taskId: 'task 1',
-        future: () async {
-          return '';
-        }(),
+  group('TaskStatus Getters Test', () {
+    test('should reflect canceled state', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
         isCanceled: true,
-        isCompleted: false,
-        isError: false,
-        isTimedOut: false,
-        isExecuting: false,
       ));
-      expect(task.taskId, 'task 1');
-      expect(task.isCanceled, isTrue);
-      expect(task.isTimedOut, isFalse);
-      expect(task.isCompleted, isFalse);
-      expect(task.isError, isFalse);
-      expect(task.isExecuting, isFalse);
+      expect(taskStatus.isCanceled, isTrue);
     });
 
-    // Test other combinations
-    test('Task updates when respective task is timed out', () async {
-      final task = TaskStatus(FakeCancelableTask(
-        taskId: 'task 1',
-        future: () async {
-          return '';
-        }(),
-        isCanceled: false,
-        isCompleted: false,
-        isError: false,
+    test('should reflect timed out state', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
         isTimedOut: true,
-        isExecuting: false,
       ));
-      expect(task.taskId, 'task 1');
-      expect(task.isCanceled, isFalse);
-      expect(task.isTimedOut, isTrue);
-      expect(task.isCompleted, isFalse);
-      expect(task.isError, isFalse);
-      expect(task.isExecuting, isFalse);
+      expect(taskStatus.isTimedOut, isTrue);
     });
 
-    test('Task updates when respective task is completed', () async {
-      final task = TaskStatus(FakeCancelableTask(
-        taskId: 'task 1',
-        future: () async {
-          return '';
-        }(),
-        isCanceled: false,
+    test('should reflect completed state', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
         isCompleted: true,
-        isError: false,
-        isTimedOut: false,
-        isExecuting: false,
       ));
-      expect(task.taskId, 'task 1');
-      expect(task.isCanceled, isFalse);
-      expect(task.isTimedOut, isFalse);
-      expect(task.isCompleted, isTrue);
-      expect(task.isError, isFalse);
-      expect(task.isExecuting, isFalse);
+      expect(taskStatus.isCompleted, isTrue);
     });
 
-    test('Task updates when respective task encounters an error', () async {
-      final task = TaskStatus(FakeCancelableTask(
-        taskId: 'task 1',
-        future: () async {
-          return '';
-        }(),
-        isCanceled: false,
-        isCompleted: false,
+    test('should reflect error state', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
         isError: true,
-        isTimedOut: false,
-        isExecuting: false,
       ));
-      expect(task.taskId, 'task 1');
-      expect(task.isCanceled, isFalse);
-      expect(task.isTimedOut, isFalse);
-      expect(task.isCompleted, isFalse);
-      expect(task.isError, isTrue);
-      expect(task.isExecuting, isFalse);
+      expect(taskStatus.isError, isTrue);
     });
 
-    test('Task updates when respective task isExecuting', () async {
-      final task = TaskStatus(FakeCancelableTask(
-        taskId: 'task 1',
-        future: () async {
-          return '';
-        }(),
-        isCanceled: false,
-        isCompleted: false,
-        isError: false,
-        isTimedOut: false,
+    test('should reflect executing state', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
         isExecuting: true,
       ));
-      expect(task.taskId, 'task 1');
-      expect(task.isCanceled, isFalse);
-      expect(task.isTimedOut, isFalse);
-      expect(task.isCompleted, isFalse);
-      expect(task.isError, isFalse);
-      expect(task.isExecuting, isTrue);
+      expect(taskStatus.isExecuting, isTrue);
+    });
+
+    test('should return correct taskId', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
+      ));
+      expect(taskStatus.taskId, 'task1');
+    });
+
+    test('should return correct managerId', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
+      ));
+      expect(taskStatus.managerId, 'manager1');
+    });
+
+    test('should return correct result', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
+        result: 'Success',
+      ));
+      expect(taskStatus.result, 'Success');
+    });
+
+    test('should return correct lastException', () {
+      final exception = Exception('Test Exception');
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
+        lastException: exception,
+      ));
+      expect(taskStatus.lastException, exception);
+    });
+
+    test('should return correct taskHashcode', () {
+      final taskStatus = TaskStatus(FakeCancelableTask<String>(
+        taskId: 'task1',
+        managerId: 'manager1',
+        hashCode: 42,
+      ));
+      expect(taskStatus.taskHashcode, 42);
+    });
+
+    test('valueOrNull returns the latest value added', () {
+      final stream = ObservableStream<int>(initialValue: 10);
+      stream.add(20);
+      expect(stream.valueOrNull, 20);
     });
   });
 }

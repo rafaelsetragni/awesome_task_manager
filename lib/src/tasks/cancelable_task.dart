@@ -4,23 +4,21 @@ import '../exceptions/task_exceptions.dart';
 import '../types/types.dart';
 import 'task_state.dart';
 
-
-
 class CancelableTask<T> extends TaskState<T> {
   final Duration? timeout;
   final Task<T> task;
 
   CancelableTask({
+    required super.managerId,
     required super.taskId,
     required this.task,
-    this.timeout
+    this.timeout,
   });
 
   bool cancel() {
     if (isCompleted) return false;
     try {
-      completer
-          .completeError(CancellationException(taskId: taskId));
+      completer.completeError(CancellationException(taskId: taskId));
       return isCanceled = true;
     } catch (_) {
       return false;
@@ -28,8 +26,8 @@ class CancelableTask<T> extends TaskState<T> {
   }
 
   Future<T> execute() async {
-    if (isCompleted || executed) return future;
-    executed = true;
+    if (isCompleted || isExecuting) return future;
+    started = true;
 
     try {
       final timeout = this.timeout;
@@ -37,22 +35,19 @@ class CancelableTask<T> extends TaskState<T> {
       if (timeout == null) {
         future = task(status);
       } else {
-        future = task(status)
-            .timeout(
-            timeout,
-              onTimeout: () {
-                isTimedOut = true;
-                throw TimeoutException(taskId: taskId);
-              }
-            );
+        future = task(status).timeout(timeout, onTimeout: () {
+          isTimedOut = true;
+          throw TimeoutException(taskId: taskId);
+        });
       }
 
       completer.complete(await future);
-
+      emitNewState();
     } catch (error) {
       isError = !isTimedOut;
       if (!completer.isCompleted) {
         completer.completeError(error);
+        emitNewState();
       }
     }
     return future;

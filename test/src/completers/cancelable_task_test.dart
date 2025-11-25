@@ -1,11 +1,12 @@
 import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('CancelableTask Tests', () {
     test('Task executes successfully', () async {
       var task = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'test',
         task: (status) async => 'result',
       );
@@ -19,12 +20,11 @@ void main() {
 
     test('Task is marking executing correctly', () async {
       var task = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'test',
-        task: (status) => Future
-          .delayed(const Duration(milliseconds: 250))
-          .then((value) => 'result'),
+        task: (status) => Future.delayed(const Duration(milliseconds: 250))
+            .then((value) => 'result'),
       );
-
 
       late Future<String> future;
       expect(task.isExecuting, isFalse);
@@ -38,7 +38,7 @@ void main() {
 
       try {
         expect(await future, 'result');
-      } catch (e){
+      } catch (e) {
         fail(e.toString());
       }
 
@@ -48,6 +48,7 @@ void main() {
 
     test('Task is cancelled correctly', () async {
       var task = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'test',
         task: (status) async {
           await Future.delayed(const Duration(seconds: 1));
@@ -67,6 +68,7 @@ void main() {
 
     test('Task times out correctly', () async {
       var task = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'test',
         task: (status) async {
           await Future.delayed(const Duration(seconds: 1));
@@ -84,6 +86,7 @@ void main() {
 
     test('Task handles error correctly', () async {
       var task = CancelableTask<String>(
+        managerId: 'test',
         taskId: 'test',
         task: (status) async {
           throw Exception('Test error');

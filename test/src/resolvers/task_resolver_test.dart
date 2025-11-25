@@ -1,6 +1,6 @@
-import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
+import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -9,7 +9,11 @@ import 'package:mockito/mockito.dart';
 import 'reject_after_threshold_test.dart';
 import 'task_resolver_test.mocks.dart';
 
-typedef TimeExecutionTracker = ({String taskId, DateTime startTime, DateTime endTime});
+typedef TimeExecutionTracker = ({
+  String taskId,
+  DateTime startTime,
+  DateTime endTime
+});
 Future<TimeExecutionTracker> simpleExecutionTracker({
   required String taskId,
   Duration fakeDelay = const Duration(milliseconds: 250),
@@ -27,11 +31,11 @@ Future<TimeExecutionTracker> simpleExecutionTracker({
 class MockTaskResolver<T> extends TaskResolver<T> {
   final MockStopwatch? mockStopwatch;
 
-  MockTaskResolver({this.mockStopwatch}) : super(taskId: '1');
+  MockTaskResolver({this.mockStopwatch})
+      : super(managerId: 'test', taskId: '1');
 
   @override
-  Stopwatch getStopwatch() =>
-      mockStopwatch ?? super.getStopwatch();
+  Stopwatch getStopwatch() => mockStopwatch ?? super.getStopwatch();
 }
 
 @GenerateNiceMocks([
@@ -46,27 +50,22 @@ void main() {
     mockStopwatch = MockStopwatch();
     resolver = MockTaskResolver(mockStopwatch: mockStopwatch);
 
-    when(mockStopwatch.start()).thenAnswer((_){});
-    when(mockStopwatch.stop()).thenAnswer((_){});
+    when(mockStopwatch.start()).thenAnswer((_) {});
+    when(mockStopwatch.stop()).thenAnswer((_) {});
     when(mockStopwatch.elapsed).thenReturn(Duration.zero);
   });
 
   group('validateTaskThreshold', () {
-    test(
-        'should throw an exception if maximumParallelTasks is less than 1', () {
-      expect(() =>
-          MockTaskResolver()
-              .validateMaximumParallelTasks(0),
+    test('should throw an exception if maximumParallelTasks is less than 1',
+        () {
+      expect(() => MockTaskResolver().validateMaximumParallelTasks(0),
           throwsA(isA<InvalidTasksParameterException>()));
     });
 
-    test(
-        'should not throw an exception if maximumParallelTasks is 1 or more', () {
-      expect(() =>
-          MockTaskResolver()
-              .validateMaximumParallelTasks(1),
-          returnsNormally
-      );
+    test('should not throw an exception if maximumParallelTasks is 1 or more',
+        () {
+      expect(() => MockTaskResolver().validateMaximumParallelTasks(1),
+          returnsNormally);
     });
   });
 
@@ -83,24 +82,21 @@ void main() {
       final result = await resolver.executeSingleTask(
           tag: 'testTag',
           cancelableTaskReference: CancelableTask(
+              managerId: 'test',
               taskId: 'testTag',
-              task: (status) async => 'Test Result'
-          )
-      );
+              task: (status) async => 'Test Result'));
       expect(result.result, 'Test Result');
       expect(result.exception, isNull);
     });
 
     test('should complete with exception on task failure', () async {
       final resolver = MockTaskResolver();
-      final result = await resolver
-          .executeSingleTask(
-              tag: 'testTag',
-              cancelableTaskReference: CancelableTask(
-                  taskId: 'testTag',
-                  task: (status) async => throw Exception('Test Exception')
-              )
-          );
+      final result = await resolver.executeSingleTask(
+          tag: 'testTag',
+          cancelableTaskReference: CancelableTask(
+              managerId: 'test',
+              taskId: 'testTag',
+              task: (status) async => throw Exception('Test Exception')));
 
       expect(result.result, isNull);
       expect(result.exception, isNotNull);
@@ -111,73 +107,66 @@ void main() {
     test('should correctly clean the past queue', () async {
       final TaskResolver<TimeExecutionTracker> resolver = MockTaskResolver();
       final CancelableTask<TimeExecutionTracker> completer1 = CancelableTask(
-          taskId: 'testTag',
-          task: (status) => simpleExecutionTracker(taskId: '1'),
+        managerId: 'test',
+        taskId: 'testTag',
+        task: (status) => simpleExecutionTracker(taskId: '1'),
       );
 
       resolver.taskQueue.add(completer1);
       await resolver.executeSingleTask(
-          tag: 'testTag',
-          cancelableTaskReference: completer1
-      );
+          tag: 'testTag', cancelableTaskReference: completer1);
 
       expect(resolver.taskQueue.isEmpty, false);
       await resolver.fetchNextQueue(
-          callerReference: 'fetchNextQueue',
-          finishedTask: completer1,
+        callerReference: 'fetchNextQueue',
+        finishedTask: completer1,
       );
       expect(resolver.taskQueue.isEmpty, true);
     });
 
     test('should correctly clean the past queue if cancelled', () async {
       final TaskResolver<TimeExecutionTracker> resolver = MockTaskResolver();
-      final CancelableTask<TimeExecutionTracker>
-      completer1 = CancelableTask(
+      final CancelableTask<TimeExecutionTracker> completer1 = CancelableTask(
+          managerId: 'test',
           taskId: 'testTag',
-          task: (status) => simpleExecutionTracker(taskId: '1')
-      );
+          task: (status) => simpleExecutionTracker(taskId: '1'));
 
       resolver.taskQueue.add(completer1);
       await resolver.executeSingleTask(
-          tag: 'testTag',
-          cancelableTaskReference: completer1
-      );
+          tag: 'testTag', cancelableTaskReference: completer1);
 
       expect(resolver.taskQueue.isEmpty, false);
       await resolver.fetchNextQueue(
-          callerReference: 'fetchNextQueue',
-          finishedTask: completer1,
+        callerReference: 'fetchNextQueue',
+        finishedTask: completer1,
       );
       expect(resolver.taskQueue.isEmpty, true);
     });
 
     test('should correctly clean the past queue', () async {
       final TaskResolver<TimeExecutionTracker> resolver = MockTaskResolver();
-      final CancelableTask<TimeExecutionTracker>
-          completer1 = CancelableTask(
+      final CancelableTask<TimeExecutionTracker> completer1 = CancelableTask(
+              managerId: 'test',
               taskId: 'testTag',
-              task: (status) => simpleExecutionTracker(taskId: '1')
-          ),
+              task: (status) => simpleExecutionTracker(taskId: '1')),
           completer2 = CancelableTask(
+              managerId: 'test',
               taskId: 'testTag',
               task: (status) => simpleExecutionTracker(
-                taskId: '2',
-                fakeDelay: const Duration(milliseconds: 500),
-              )
-          );
+                    taskId: '2',
+                    fakeDelay: const Duration(milliseconds: 500),
+                  ));
 
       resolver.taskQueue.add(completer1);
       await resolver.executeSingleTask(
-          tag: 'testTag',
-          cancelableTaskReference: completer1
-      );
+          tag: 'testTag', cancelableTaskReference: completer1);
 
       resolver.taskQueue.add(completer2);
       expect(resolver.taskQueue.length, 2);
 
       await resolver.fetchNextQueue(
-          callerReference: 'fetchNextQueue',
-          finishedTask: completer1,
+        callerReference: 'fetchNextQueue',
+        finishedTask: completer1,
       );
       expect(resolver.taskQueue.length, 1);
       expect(resolver.taskQueue.first, completer2);
@@ -186,28 +175,21 @@ void main() {
     test('should correctly clean the past queue', () async {
       const taskId = 'fetchNextQueueTest 1';
       final TaskResolver<TimeExecutionTracker> resolver = MockTaskResolver();
-      final CancelableTask<TimeExecutionTracker>
-          completer1 = CancelableTask(
+      final CancelableTask<TimeExecutionTracker> completer1 = CancelableTask(
+              managerId: 'test',
               taskId: taskId,
               task: (status) => simpleExecutionTracker(
-                taskId: 'completer 1',
-                fakeDelay: taskDuration
-              )
-          ),
+                  taskId: 'completer 1', fakeDelay: taskDuration)),
           completer2 = CancelableTask(
+              managerId: 'test',
               taskId: taskId,
               task: (status) => simpleExecutionTracker(
-                  taskId: 'completer 2',
-                  fakeDelay: taskDuration * 2
-              )
-          ),
+                  taskId: 'completer 2', fakeDelay: taskDuration * 2)),
           completer3 = CancelableTask(
+              managerId: 'test',
               taskId: taskId,
               task: (status) => simpleExecutionTracker(
-                  taskId: 'completer 3',
-                  fakeDelay: taskDuration * 3
-              )
-          );
+                  taskId: 'completer 3', fakeDelay: taskDuration * 3));
 
       resolver.taskQueue.add(completer1);
       resolver.taskQueue.add(completer2);
@@ -232,8 +214,8 @@ void main() {
 
       expect(resolver.taskQueue.length, 3);
       await resolver.fetchNextQueue(
-          callerReference: 'fetchNextQueue',
-          finishedTask: completer1,
+        callerReference: 'fetchNextQueue',
+        finishedTask: completer1,
       );
 
       expect(resolver.taskQueue.length, 2);
@@ -242,8 +224,8 @@ void main() {
 
       await completer2.future;
       await resolver.fetchNextQueue(
-          callerReference: 'fetchNextQueue',
-          finishedTask: completer2,
+        callerReference: 'fetchNextQueue',
+        finishedTask: completer2,
       );
 
       expect(resolver.taskQueue.length, 1);
@@ -252,18 +234,16 @@ void main() {
   });
 
   group('description', () {
-
     test('should stop the stopwatch on successful execution', () async {
       mockStopwatch.reset();
 
-      final result = await resolver
-          .executeSingleTask(
-              tag: 'testTag',
-              cancelableTaskReference: CancelableTask(
-                taskId: 'testTag',
-                task: (status) async => 'Test Result'
-              ),
-          );
+      final result = await resolver.executeSingleTask(
+        tag: 'testTag',
+        cancelableTaskReference: CancelableTask(
+            managerId: 'test',
+            taskId: 'testTag',
+            task: (status) async => 'Test Result'),
+      );
 
       expect(result.result, 'Test Result');
       expect(result.exception, isNull);
@@ -277,11 +257,11 @@ void main() {
       final TaskResult result = await resolver.executeSingleTask(
           tag: 'testTag',
           cancelableTaskReference: CancelableTask(
+              managerId: 'test',
               taskId: 'testTag',
               task: (status) async {
                 throw Exception('Test Exception');
-              }
-          ));
+              }));
 
       expect(result.result, isNull);
       expect(result.exception, isNotNull);
@@ -290,19 +270,19 @@ void main() {
       verify(mockStopwatch.stop()).called(1);
     });
 
-    test('should stop the stopwatch on task failure with non-Exception error', () async {
+    test('should stop the stopwatch on task failure with non-Exception error',
+        () async {
       mockStopwatch.reset();
 
-      final result = await resolver
-          .executeSingleTask(
-              tag: 'testTag',
-              cancelableTaskReference: CancelableTask(
-                  taskId: 'testTag',
-                  task: (status) async {
-                    throw 'Non-Exception Error';
-                  }
-              ),
-          );
+      final result = await resolver.executeSingleTask(
+        tag: 'testTag',
+        cancelableTaskReference: CancelableTask(
+            managerId: 'test',
+            taskId: 'testTag',
+            task: (status) async {
+              throw 'Non-Exception Error';
+            }),
+      );
 
       expect(result.result, isNull);
       expect(result.exception, isNotNull);
@@ -348,5 +328,4 @@ void main() {
       expect(resolver.cancelTask(taskId: '1'), isFalse);
     });
   });
-
 }

@@ -30,72 +30,47 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class IncrementActionController {
+class CountActionController {
   final fakeDelay = const Duration(milliseconds: 1500);
 
   int get counter => _counter;
   int _counter = 0;
 
-  final SequentialQueueManager taskManager = AwesomeTaskManager()
-      .createSequentialQueueManager();
+  final SequentialQueueManager taskManager =
+      AwesomeTaskManager().createSequentialQueueManager(managerId: 'counter');
 
-  Future<int> increment() async {
-    final result = await taskManager
-        .executeSequentialTask<int>(
-          callerReference: 'MyHomePage',
-          taskId: 'CounterTask',
-          task: (taskStatus) async {
-            await Future.delayed(fakeDelay);
-            return ++_counter;
-          },
-        );
-    return counter;
+  Future<void> increment() async {
+    await taskManager.executeSequentialTask<int>(
+      callerReference: 'CountActionController',
+      taskId: 'increment',
+      task: (taskStatus) async {
+        await Future.delayed(fakeDelay);
+        return ++_counter;
+      },
+    );
   }
 
-  Future<int> decrement() async {
-    final result = await taskManager
-        .executeSequentialTask(
-          callerReference: 'MyHomePage',
-          taskId: 'CounterTask',
-          task: (taskStatus) async {
-            await Future.delayed(fakeDelay);
-            return --_counter;
-          },
-        );
-    return counter;
+  Future<void> decrement() async {
+    await taskManager.executeSequentialTask<int>(
+      callerReference: 'CountActionController',
+      taskId: 'decrement',
+      task: (taskStatus) async {
+        await Future.delayed(fakeDelay);
+        return --_counter;
+      },
+    );
   }
 }
 
+Widget getCircularProgress() =>
+    const SizedBox(width: 18, height: 18, child: CircularProgressIndicator());
+
 class _MyHomePageState extends State<MyHomePage> {
-  final incrementActionController = IncrementActionController();
-  late final RejectedAfterThresholdManager taskManager;
+  final countingController = CountActionController();
 
   @override
   void initState() {
     super.initState();
-    taskManager = AwesomeTaskManager()
-        .createRejectedAfterThresholdManager();
-  }
-
-  void _incrementCounter() =>
-    taskManager.executeRejectingAfterThreshold(
-      callerReference: 'MyHomePage',
-      taskId: 'userTap',
-      task: (taskStatus) async {
-        final result = await incrementActionController
-            .increment();
-      },
-    );
-
-  void _decrementCounter() {
-    taskManager.executeRejectingAfterThreshold(
-      callerReference: 'MyHomePage',
-      taskId: 'userTap',
-      task: (taskStatus) async {
-        final result = await incrementActionController
-            .increment();
-      },
-    );
   }
 
   @override
@@ -112,54 +87,50 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            AwesomeTaskObserver.byManagerId(
+                managerId: 'counter',
+                builder: (context, snapshot) {
+                  return Text(
+                    '${countingController.counter}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  );
+                }),
           ],
         ),
       ),
-      floatingActionButton: AwesomeTaskObserver(
-        taskId: 'changeCounter',
-        builder: (context, snapshot) {
-          late Widget incrementIcon, decrementIcon;
-          late VoidCallback? incrementMethod, decrementMethod;
-
-          bool isLoading =
-              snapshot.connectionState == ConnectionState.waiting ||
-              (snapshot.data?.isExecuting ?? false);
-
-          if (isLoading) {
-            incrementIcon = decrementIcon = const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator()
-            );
-            incrementMethod = decrementMethod = null;
-          } else {
-            incrementIcon = const Icon(Icons.plus_one);
-            decrementIcon = const Icon(Icons.exposure_minus_1);
-            incrementMethod = _incrementCounter;
-            decrementMethod = _decrementCounter;
-          }
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                onPressed: incrementMethod,
-                tooltip: 'Increment',
-                child: incrementIcon,
-              ),
-              const SizedBox(height: 16),
-              FloatingActionButton(
-                onPressed: decrementMethod,
-                tooltip: 'Decrement',
-                child: decrementIcon,
-              ),
-            ],
-          );
-        }
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          AwesomeTaskObserver.byTaskId(
+              taskId: 'increment',
+              builder: (context, snapshot) {
+                bool isLoading =
+                    snapshot.connectionState == ConnectionState.waiting ||
+                        (snapshot.data?.isExecuting ?? false);
+                return FloatingActionButton(
+                  onPressed: isLoading ? null : countingController.increment,
+                  tooltip: 'Increment',
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.plus_one),
+                );
+              }),
+          const SizedBox(height: 16),
+          AwesomeTaskObserver.byTaskId(
+              taskId: 'decrement',
+              builder: (context, snapshot) {
+                bool isLoading =
+                    snapshot.connectionState == ConnectionState.waiting ||
+                        (snapshot.data?.isExecuting ?? false);
+                return FloatingActionButton(
+                  onPressed: isLoading ? null : countingController.decrement,
+                  tooltip: 'Decrement',
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.exposure_minus_1),
+                );
+              }),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

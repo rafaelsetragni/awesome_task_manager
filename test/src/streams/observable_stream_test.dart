@@ -5,7 +5,7 @@ void main() {
   group('ObservableStream Tests', () {
     test('Stream emits added values', () async {
       final stream = ObservableStream<int>(initialValue: 0);
-      final List<int> emittedValues = [];
+      final List<int?> emittedValues = [];
 
       stream.stream.listen(emittedValues.add);
       await Future.delayed(Duration.zero);
@@ -37,12 +37,9 @@ void main() {
     test('Listener count is managed correctly', () async {
       var zeroListenersCalled = false;
       final stream = ObservableStream<int>(
-          initialValue: 0,
-          onZeroListeners: () => zeroListenersCalled = true
-      );
+          initialValue: 0, onZeroListeners: () => zeroListenersCalled = true);
 
-      final subscription = stream.stream
-          .listen((_){});
+      final subscription = stream.stream.listen((_) {});
       await Future.delayed(Duration.zero);
 
       expect(stream.listenerCount, 1);
@@ -53,7 +50,7 @@ void main() {
 
     test('Stream yields initial value if provided', () async {
       final stream = ObservableStream<int>(initialValue: 42);
-      final List<int> emittedValues = [];
+      final List<int?> emittedValues = [];
 
       stream.stream.listen(emittedValues.add);
 

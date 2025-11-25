@@ -1,5 +1,3 @@
-library awesome_task_manager;
-
 export 'src/exceptions/task_exceptions.dart';
 export 'src/extensions/duration_extension.dart';
 export 'src/managers/awesome_task_manager.dart';

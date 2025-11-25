@@ -83,7 +83,7 @@ abstract class TaskState<T> {
     return null;
   }
 
-  FutureOr<dynamic> onNewException(e) {
+  FutureOr<dynamic> onNewException(dynamic e) {
     if (e is Exception) {
       _lastException = e;
     }

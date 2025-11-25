@@ -34,8 +34,7 @@ class SequentialQueueResolver<T> extends TaskResolver<T> {
     validateMaximumParallelTasks(maximumParallelTasks);
   }
 
-  /// {@inheritdoc}
-  ///
+
   /// Adds the new task to the internal queue and waits if the concurrency limit
   /// [maximumParallelTasks] has been reached.
   ///

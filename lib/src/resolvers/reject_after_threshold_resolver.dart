@@ -31,8 +31,6 @@ class RejectAfterThresholdResolver<T> extends TaskResolver<T> {
     validateMaximumParallelTasks(taskThreshold);
   }
 
-  /// {@inheritdoc}
-  ///
   /// If the queue length reaches [taskThreshold], this method rejects the request,
   /// logs an event, and returns a [TaskResult] containing `null` and a
   /// [TooManyTasksException].

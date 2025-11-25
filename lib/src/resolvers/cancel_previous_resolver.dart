@@ -32,8 +32,6 @@ class CancelPreviousResolver<T> extends TaskResolver<T> {
     validateMaximumParallelTasks(maximumParallelTasks);
   }
 
-  /// {@inheritdoc}
-  ///
   /// If the queue exceeds [maximumParallelTasks], the earliest task is cancelled
   /// before the new task is scheduled. The new task is then added and executed.
   Future<TaskResult<T>> executeTask({

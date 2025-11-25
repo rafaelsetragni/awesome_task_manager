@@ -15,8 +15,6 @@ class MemoryRepository extends CacheRepository {
   /// Values are kept until manually cleared or automatically removed when expired.
   final Map<String, (dynamic, DateTime)> cache = {};
 
-  /// {@inheritdoc}
-  ///
   /// If the item exists and has not expired, returns the cached tuple.
   /// Otherwise, removes the stale entry and returns `null`.
   @override
@@ -30,8 +28,6 @@ class MemoryRepository extends CacheRepository {
     }
   }
 
-  /// {@inheritdoc}
-  ///
   /// Automatically cleans expired entries while collecting those matching type [T].
   @override
   Future<List<(String key, T value, DateTime expirationDate)>>
@@ -49,8 +45,6 @@ class MemoryRepository extends CacheRepository {
     return values;
   }
 
-  /// {@inheritdoc}
-  ///
   /// Removes a cached item and returns it if it matches type [T], otherwise `null`.
   @override
   Future<(T, DateTime)?> remove<T>({required String key}) async {
@@ -59,8 +53,6 @@ class MemoryRepository extends CacheRepository {
     return null;
   }
 
-  /// {@inheritdoc}
-  ///
   /// Skips storage if the expiration date is already in the past.
   @override
   Future<bool> write<T>(
@@ -72,8 +64,6 @@ class MemoryRepository extends CacheRepository {
     return true;
   }
 
-  /// {@inheritdoc}
-  ///
   /// Writes multiple entries and returns `true` only if all writes succeed.
   @override
   Future<bool> writeAll<T>(
@@ -88,8 +78,6 @@ class MemoryRepository extends CacheRepository {
     return written;
   }
 
-  /// {@inheritdoc}
-  ///
   /// Clears the entire in-memory cache, ignoring type filtering.
   @override
   Future<bool> clearAll<T>() {

@@ -22,7 +22,7 @@ class InvalidTasksParameterException implements AwesomeTaskException {
   @override
   String toString() =>
       'InvalidTasksParameterException: Parameter value of $parameterName is '
-          'invalid ($value)';
+      'invalid ($value)';
 }
 
 class MismatchTasksReturnsException implements AwesomeTaskException {
@@ -38,8 +38,8 @@ class MismatchTasksReturnsException implements AwesomeTaskException {
   @override
   String toString() =>
       'MismatchTasksReturnsException: Tasks with same ID $taskId are requesting'
-          ' different return types'
-          ' (A return: $typeA, B return: $typeB)';
+      ' different return types'
+      ' (A return: $typeA, B return: $typeB)';
 }
 
 class TimeoutException implements Exception {

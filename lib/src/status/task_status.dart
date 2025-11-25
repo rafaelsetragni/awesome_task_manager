@@ -1,14 +1,12 @@
-import 'package:awesome_task_manager/awesome_task_manager.dart';
-
 import '../tasks/task_state.dart';
 
 abstract class TaskStatus<T> {
-
   factory TaskStatus(TaskState taskReference) =>
       CancelableTaskStatus<T>(taskReference);
 
-  factory TaskStatus.empty({required String taskId}) =>
-      EmptyTaskStatus(taskId);
+  // factory TaskStatus.empty() => EmptyTaskStatus(managerId: '', taskId: '');
+
+  String get managerId;
 
   String get taskId;
 
@@ -29,43 +27,13 @@ abstract class TaskStatus<T> {
   T? get result;
 }
 
-class EmptyTaskStatus<T>  implements TaskStatus<T> {
-
-  EmptyTaskStatus(this.taskId);
-
-  @override
-  final String taskId;
-
-  @override
-  int get taskHashcode => hashCode;
-
-  @override
-  bool get isCompleted => false;
-
-  @override
-  bool get isCanceled => false;
-
-  @override
-  bool get isExecuting => false;
-
-  @override
-  bool get isTimedOut => false;
-
-  @override
-  bool get isError => false;
-
-  @override
-  Exception? get lastException => null;
-
-  @override
-  T? get result => null;
-}
-
 class CancelableTaskStatus<T> implements TaskStatus<T> {
-
   final TaskState _taskReference;
 
   CancelableTaskStatus(this._taskReference);
+
+  @override
+  String get managerId => _taskReference.managerId;
 
   @override
   String get taskId => _taskReference.taskId;

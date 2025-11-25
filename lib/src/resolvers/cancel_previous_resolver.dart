@@ -9,9 +9,10 @@ class CancelPreviousResolver<T> extends TaskResolver<T> {
   int maximumParallelTasks;
 
   CancelPreviousResolver({
+    required super.managerId,
     required super.taskId,
     required this.maximumParallelTasks,
-  }){
+  }) {
     validateMaximumParallelTasks(maximumParallelTasks);
   }
 
@@ -20,8 +21,7 @@ class CancelPreviousResolver<T> extends TaskResolver<T> {
     required Task<T> task,
     Duration? timeoutDuration,
   }) {
-
-    if (tasksRunning >= maximumParallelTasks){
+    if (tasksRunning >= maximumParallelTasks) {
       final firstSlot = taskQueue.firstOrNull?..cancel();
       if (firstSlot != null) {
         taskQueue.remove(firstSlot);
@@ -29,8 +29,9 @@ class CancelPreviousResolver<T> extends TaskResolver<T> {
     }
 
     CancelableTask<T> completer = CancelableTask(
-        taskId: taskId,
-        task: task
+      managerId: managerId,
+      taskId: taskId,
+      task: task,
     );
     taskQueue.add(completer);
 

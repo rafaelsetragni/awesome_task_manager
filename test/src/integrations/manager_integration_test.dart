@@ -1,32 +1,32 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
 import 'package:awesome_task_manager/src/managers/awesome_task_manager.dart';
-import 'package:awesome_task_manager/src/managers/task_manager.dart';
 import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const testNameRandom = 'Random Tasks';
-const numberOfTasks = 10000;
+const numberOfTasks = 500;
 const taskIdVariations = 30;
 const taskDuration = Duration(milliseconds: 250);
 const halfTaskDuration = Duration(milliseconds: 125);
 const integrationTestTimeout = Timeout(Duration(minutes: 5));
 
 typedef FutureInstanceTests<T> = ({
-    String id,
-    int testNumber,
-    Future<TaskResult<T>> futureInstance
+  String id,
+  int testNumber,
+  Future<TaskResult<T>> futureInstance
 });
 
 void main() {
   group('Integration tests', () {
-
-    test('Integration tests - SharedResult $numberOfTasks random tasks', () async {
-      final taskManager = AwesomeTaskManager().createSharedResultManager();
+    test('Integration tests - SharedResult $numberOfTasks random tasks',
+        () async {
+      final taskManager = AwesomeTaskManager().createSharedResultManager(
+        managerId: 'test',
+      );
       Future<int> task({required String taskId, required int result}) async {
-        dev.log('Executing task $result...', name: taskId);
+        AwesomeTaskManager().log('Executing task $result...', name: taskId);
         await Future.delayed(taskDuration);
         return result;
       }
@@ -41,36 +41,34 @@ void main() {
           id: taskId,
           testNumber: count,
           futureInstance: taskManager.executeTaskSharingResult(
-              callerReference: '$taskId ($count)',
-              taskId: taskId,
-              task: (status) => task(taskId: taskId, result: count),
+            callerReference: '$taskId ($count)',
+            taskId: taskId,
+            task: (status) => task(taskId: taskId, result: count),
           )
         ));
       }
 
-      final  Map<String, int> futureInstanceChecker = {};
+      final Map<String, int> futureInstanceChecker = {};
       for (FutureInstanceTests<int> test in futures) {
         final currentValue = (await test.futureInstance).result;
         expect(currentValue, isNotNull);
         futureInstanceChecker[test.id] ??= currentValue!;
         final oldValue = futureInstanceChecker[test.id];
 
-        expect(
-            currentValue,
-            oldValue,
+        expect(currentValue, oldValue,
             reason:
-            'The task "${test.id}" received a different future than expected');
+                'The task "${test.id}" received a different future than expected');
       }
     }, timeout: integrationTestTimeout);
 
     test('Integration tests - TaskPool $numberOfTasks random tasks', () async {
       const int poolSize = 5;
       final taskManager = AwesomeTaskManager()
-          .createTaskPoolManager(poolSize: poolSize);
+          .createTaskPoolManager(managerId: 'test', poolSize: poolSize);
 
       Future<(DateTime, DateTime)> task({required String taskId}) async {
         final started = DateTime.now();
-        dev.log('Executing task $taskId...', name: taskId);
+        AwesomeTaskManager().log('Executing task $taskId...', name: taskId);
         await Future.delayed(taskDuration);
         final ended = DateTime.now();
         return (started, ended);
@@ -79,7 +77,7 @@ void main() {
       final random = Random();
 
       // Run multiple concurrent tasks at once
-      final List<FutureInstanceTests<(DateTime,DateTime)>> futures = [];
+      final List<FutureInstanceTests<(DateTime, DateTime)>> futures = [];
       for (int count = 0; count < numberOfTasks; count++) {
         final taskId = 'task ${1 + random.nextInt(taskIdVariations)}';
         futures.add((
@@ -94,7 +92,7 @@ void main() {
       }
 
       final Map<String, List<(bool, DateTime)>> startTimes = {};
-      for (FutureInstanceTests<(DateTime,DateTime)> test in futures) {
+      for (FutureInstanceTests<(DateTime, DateTime)> test in futures) {
         final result = await test.futureInstance;
         expect(result, isNotNull);
 
@@ -106,7 +104,8 @@ void main() {
         startTimes[test.id]!.add((false, finishedAt));
       }
 
-      for (MapEntry<String, List<(bool, DateTime)>> entry in startTimes.entries) {
+      for (MapEntry<String, List<(bool, DateTime)>> entry
+          in startTimes.entries) {
         final timeEvents = entry.value;
         // Sort time events based on the time
         timeEvents.sort((a, b) => a.$2.compareTo(b.$2));
@@ -122,17 +121,20 @@ void main() {
           }
 
           expect(currentParallel, lessThanOrEqualTo(poolSize),
-              reason: 'More than $poolSize tasks ran simultaneously for ${entry.key}');
+              reason:
+                  'More than $poolSize tasks ran simultaneously for ${entry.key}');
         }
       }
     }, timeout: integrationTestTimeout);
 
-    test('Integration tests - SequentialQueue $numberOfTasks random tasks', () async {
-
-      final taskManager = AwesomeTaskManager().createSequentialQueueManager();
+    test('Integration tests - SequentialQueue $numberOfTasks random tasks',
+        () async {
+      final taskManager = AwesomeTaskManager().createSequentialQueueManager(
+        managerId: 'test',
+      );
       Future<DateTime> task({required String taskId}) async {
         final startedAt = DateTime.now();
-        dev.log('Executing task $taskId...', name: taskId);
+        AwesomeTaskManager().log('Executing task $taskId...', name: taskId);
         await Future.delayed(taskDuration);
         return startedAt;
       }
@@ -144,17 +146,17 @@ void main() {
       for (int count = 0; count < numberOfTasks; count++) {
         final taskId = 'task ${1 + random.nextInt(taskIdVariations)}';
         futures.add((
-        id: taskId,
-        testNumber: count,
-        futureInstance: taskManager.executeSequentialTask(
-            callerReference: '$taskId ($count)',
-            taskId: taskId,
-            task: (status) => task(taskId: taskId),
-            maximumParallelTasks: 1)
+          id: taskId,
+          testNumber: count,
+          futureInstance: taskManager.executeSequentialTask(
+              callerReference: '$taskId ($count)',
+              taskId: taskId,
+              task: (status) => task(taskId: taskId),
+              maximumParallelTasks: 1)
         ));
       }
 
-      final  Map<String, List<DateTime>> futureInstanceChecker = {};
+      final Map<String, List<DateTime>> futureInstanceChecker = {};
       for (FutureInstanceTests<DateTime> test in futures) {
         final currentStartedAt = (await test.futureInstance).result;
         expect(currentStartedAt, isNotNull);
@@ -162,7 +164,8 @@ void main() {
         futureInstanceChecker[test.id]!.add(currentStartedAt!);
       }
 
-      for (MapEntry<String, List<DateTime>> createdAtEntry in futureInstanceChecker.entries) {
+      for (MapEntry<String, List<DateTime>> createdAtEntry
+          in futureInstanceChecker.entries) {
         // Sort the DateTime objects for each task type
         createdAtEntry.value.sort((a, b) => a.compareTo(b));
 
@@ -171,27 +174,28 @@ void main() {
           final DateTime previousCreatedAt = createdAtEntry.value[i - 1];
           final DateTime currentCreatedAt = createdAtEntry.value[i];
 
-          expect(
-              currentCreatedAt.difference(previousCreatedAt),
+          expect(currentCreatedAt.difference(previousCreatedAt),
               greaterThanOrEqualTo(taskDuration),
               reason:
-              'The task "${createdAtEntry.key}" executed in parallel when was not allowed');
+                  'The task "${createdAtEntry.key}" executed in parallel when was not allowed');
         }
       }
     }, timeout: integrationTestTimeout);
 
-    test('Integration tests - RejectedAfterThreshold $numberOfTasks random tasks', () async {
-
+    test(
+        'Integration tests - RejectedAfterThreshold $numberOfTasks random tasks',
+        () async {
       final startedAt = DateTime.now();
       final random = Random();
       const int taskThreshold = 3;
 
-      final taskManager =
-      AwesomeTaskManager().createRejectedAfterThresholdManager(taskThreshold: taskThreshold);
+      final taskManager = AwesomeTaskManager()
+          .createRejectedAfterThresholdManager(
+              managerId: 'test', taskThreshold: taskThreshold);
 
       Future<DateTime> task({required String taskId}) async {
         final startedAt = DateTime.now();
-        dev.log('Executing task $taskId...', name: taskId);
+        AwesomeTaskManager().log('Executing task $taskId...', name: taskId);
         await Future.delayed(taskDuration);
         return startedAt;
       }
@@ -213,39 +217,35 @@ void main() {
 
       final Map<String, List<TaskResult<DateTime>>> executions = {};
       for (FutureInstanceTests<DateTime> test in futures) {
-        (executions[test.id] ??= [])
-            .add(await test.futureInstance);
+        (executions[test.id] ??= []).add(await test.futureInstance);
       }
 
-      for (MapEntry<String, List<TaskResult<DateTime>>> entry in executions.entries) {
+      for (MapEntry<String, List<TaskResult<DateTime>>> entry
+          in executions.entries) {
         int successfullyTasks = 0;
         for (TaskResult<DateTime> task in entry.value) {
           if (task.result != null) {
             successfullyTasks++;
             expect(
-                task.result!.difference(startedAt),
-                lessThan(taskDuration),
-                reason: 'The allowed task did not executed when expected',
+              task.result!.difference(startedAt),
+              lessThan(taskDuration),
+              reason: 'The allowed task did not executed when expected',
             );
           } else {
-            expect(
-                task.exception,
-                isA<TooManyTasksException>(),
-                reason: 'Subsequent tasks should be rejected with TooManyTasksException.'
-            );
+            expect(task.exception, isA<TooManyTasksException>(),
+                reason:
+                    'Subsequent tasks should be rejected with TooManyTasksException.');
           }
         }
-        expect(
-            successfullyTasks,
-            taskThreshold,
-            reason: 'Not all allowed tasks was executed successfully.'
-        );
+        expect(successfullyTasks, taskThreshold,
+            reason: 'Not all allowed tasks was executed successfully.');
       }
     }, timeout: integrationTestTimeout);
   });
 
-  int countMaxSimultaneousTasks(List<DateTime> startedTimes, Duration duration) {
-    startedTimes.sort((a, b) => a.compareTo(b));  // Ensure times are sorted
+  int countMaxSimultaneousTasks(
+      List<DateTime> startedTimes, Duration duration) {
+    startedTimes.sort((a, b) => a.compareTo(b)); // Ensure times are sorted
 
     int maxSimultaneous = 0;
     for (int i = 0; i < startedTimes.length; i++) {

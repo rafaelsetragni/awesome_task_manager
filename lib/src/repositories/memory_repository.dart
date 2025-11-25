@@ -17,7 +17,8 @@ class MemoryRepository extends CacheRepository {
   }
 
   @override
-  Future<List<(String key, T value, DateTime expirationDate)>> readAll<T>() async {
+  Future<List<(String key, T value, DateTime expirationDate)>>
+      readAll<T>() async {
     List<(String key, T value, DateTime expirationDate)> values = [];
 
     cache.removeWhere((key, value) {
@@ -39,27 +40,23 @@ class MemoryRepository extends CacheRepository {
   }
 
   @override
-  Future<bool> write<T>({
-    required String key,
-    required T value,
-    required DateTime expirationDate
-  }) async {
+  Future<bool> write<T>(
+      {required String key,
+      required T value,
+      required DateTime expirationDate}) async {
     if (DateTime.now().isAfter(expirationDate)) return false;
     cache[key] = (value, expirationDate);
     return true;
   }
 
   @override
-  Future<bool> writeAll<T>({
-    required List<(String key, T value, DateTime expirationDate)> values
-  }) async {
+  Future<bool> writeAll<T>(
+      {required List<(String key, T value, DateTime expirationDate)>
+          values}) async {
     bool written = true;
     for (var value in values) {
-      final wasWritten = await write(
-          key: value.$1,
-          value: value.$2,
-          expirationDate: value.$3
-      );
+      final wasWritten =
+          await write(key: value.$1, value: value.$2, expirationDate: value.$3);
       written = written && wasWritten;
     }
     return written;

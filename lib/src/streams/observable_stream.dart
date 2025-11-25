@@ -2,11 +2,11 @@ import 'dart:async';
 
 class ObservableStream<T> {
   final _controller = StreamController<T>.broadcast();
-  T _currentValue;
+  T? _currentValue;
   int _listenerCount = 0;
   final void Function()? onZeroListeners;
 
-  ObservableStream({required T initialValue, this.onZeroListeners})
+  ObservableStream({T? initialValue, this.onZeroListeners})
       : _currentValue = initialValue;
 
   void _incrementListenerCount() {
@@ -33,7 +33,7 @@ class ObservableStream<T> {
     _controller.addError(error, stackTrace);
   }
 
-  Stream<T> get stream async* {
+  Stream<T?> get stream async* {
     _incrementListenerCount();
     yield _currentValue;
 

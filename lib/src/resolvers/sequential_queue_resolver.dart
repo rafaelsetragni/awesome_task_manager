@@ -8,9 +8,10 @@ import '../tasks/cancelable_task.dart';
 class SequentialQueueResolver<T> extends TaskResolver<T> {
   int maximumParallelTasks;
   SequentialQueueResolver({
+    required super.managerId,
     required super.taskId,
     required this.maximumParallelTasks,
-  }){
+  }) {
     validateMaximumParallelTasks(maximumParallelTasks);
   }
 
@@ -19,24 +20,25 @@ class SequentialQueueResolver<T> extends TaskResolver<T> {
     required Task<T> task,
     Duration? timeoutDuration,
   }) async {
-      CancelableTask<T> completer = CancelableTask(
-          taskId: taskId,
-          task: task
+    CancelableTask<T> completer = CancelableTask(
+      managerId: managerId,
+      taskId: taskId,
+      task: task,
+    );
+
+    taskQueue.add(completer);
+    if (tasksRunning >= maximumParallelTasks) {
+      await completer.future;
+    }
+
+    return executeSingleTask(
+      tag: callerReference,
+      cancelableTaskReference: completer,
+    ).whenComplete(() {
+      fetchNextQueue(
+        callerReference: callerReference,
+        finishedTask: completer,
       );
-
-      taskQueue.add(completer);
-      if (tasksRunning >= maximumParallelTasks) {
-        await completer.future;
-      }
-
-      return executeSingleTask(
-        tag: callerReference,
-        cancelableTaskReference: completer,
-      ).whenComplete(() {
-        fetchNextQueue(
-          callerReference: callerReference,
-          finishedTask: completer,
-        );
-      });
+    });
   }
 }

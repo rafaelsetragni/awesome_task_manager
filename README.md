@@ -1,6 +1,6 @@
 # Awesome Task Manager
 
-![AwesomeTaskManager Banner](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/banner.jpg)
+![AwesomeTaskManager Banner](assets/readme/banner.jpg)
 
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](#)
 [![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)](#)
@@ -13,7 +13,7 @@
 
 <br>
 
-Effortlessly manage and synchronize concurrent tasks across all Flutter platforms with AwesomeTaskManager.<br>
+Execute, manage and synchronize concurrent tasks across all Flutter application with AwesomeTaskManager.<br>
 Ideal for optimizing resource usage, preventing race conditions, and ensuring efficient task execution in your Flutter applications.
 
 <br>
@@ -46,8 +46,8 @@ The Awesome Task Manager plugin was mainly designed to:
 
 Your contributions help us enhance and maintain our plugins. Donations are used to procure devices and equipment for testing compatibility across platforms and versions.
 
-[*![Donate With Stripe](https://github.com/rafaelsetragni/awesome_task_manager/master/assets/readme/stripe.png?raw=true)*](https://donate.stripe.com/3cs14Yf79dQcbU4001)
-[*![Donate With Buy Me A Coffee](https://github.com/rafaelsetragni/awesome_task_manager/master/assets/readme/buy-me-a-coffee.jpeg?raw=true)*](https://www.buymeacoffee.com/rafaelsetragni)
+[*![Donate With Stripe](assets/readme/stripe.png)*](https://donate.stripe.com/3cs14Yf79dQcbU4001)
+[*![Donate With Buy Me A Coffee](assets/readme/buy-me-a-coffee.jpeg)*](https://www.buymeacoffee.com/rafaelsetragni)
 
 <br>
 <br>
@@ -224,7 +224,7 @@ Awesome Task Managers offers different task managers that has each one a exclusi
 
 Optimize task execution with the Shared Results strategy. This method is ideal for tasks with identical outcomes, avoiding redundant work and saving resources.
 
-![Shared Results Diagram](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/shared-results.drawnio.png)
+![Shared Results Diagram](assets/readme/shared-results.drawio.png)
 
 ### How it Works
 * Task 1 starts executing with a unique `taskId`. The task manager oversees this process.
@@ -255,7 +255,7 @@ By implementing the Shared Results strategy, you can achieve more efficient use 
 
 The Sequential Queue is a concurrency strategy that ensures tasks are executed one after another, in the order they were requested. This strategy is crucial when tasks must be completed in sequence to avoid conflicts or when the order of operations is essential for data integrity, as non-thread-safe operations or access to shared data.
 
-![Sequential Queue Diagram](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/sequential-queue.drawnio.png)
+![Sequential Queue Diagram](assets/readme/sequential-queue.drawio.png)
 
 ### How it Works
 - When **Task 1** is requested, it enters the queue and begins execution immediately.
@@ -283,7 +283,7 @@ Implementing a Sequential Queue can be especially important in systems where the
 
 The Reject After Threshold strategy is essential in preventing system overload and unintended user actions. By setting a concurrency limit, this method ensures that excess tasks, which may arise from double taps or accidental triggers, do not overwhelm the system.
 
-![Reject After Threshold Diagram](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/reject-after-threshold.drawnio.png)
+![Reject After Threshold Diagram](assets/readme/reject-after-threshold.drawio.png)
 
 ### How it Works
 - **Task 1** initiates and is actively running.
@@ -311,7 +311,7 @@ Incorporating the Reject After Threshold strategy can be particularly beneficial
 
 The Task Pool strategy effectively manages a finite set of resources by allowing a certain number of tasks to execute concurrently. When the limit is reached, additional tasks are queued and wait for an existing task to complete before they can start. This strategy is particularly useful for controlling the load on resources that cannot handle too many simultaneous accesses.
 
-![Task Pool Diagram](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/task-pool.drawnio.png)
+![Task Pool Diagram](assets/readme/task-pool.drawio.png)
 
 ### How it Works
 - **Task 1** begins execution as soon as it is requested.
@@ -337,7 +337,7 @@ This concurrency strategy is key in scenarios where resource limitations must be
 
 The Cancel Previous Task strategy is designed to streamline workflows by automatically cancelling any ongoing tasks when a new one with the same `taskId` starts. This is particularly beneficial in scenarios where new tasks disqualify the old ones, like search mechanisms, where only the latest request is relevant, and previous ones can be discarded, such as when waiting for a user to finish typing a search query, or real-time events.
 
-![Cancel Previous Task Diagram](https://raw.githubusercontent.com/rafaelsetragni/awesome_task_manager/master/assets/readme/cancel-previous-task.drawnio.png)
+![Cancel Previous Task Diagram](assets/readme/cancel-previous-task.drawio.png)
 
 ### How it Works
 - **Task 1** is requested and begins execution.

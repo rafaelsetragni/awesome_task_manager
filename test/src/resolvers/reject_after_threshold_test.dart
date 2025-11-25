@@ -1,20 +1,17 @@
-
 import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
 import 'package:awesome_task_manager/src/resolvers/reject_after_threshold_resolver.dart';
 import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const taskDuration = Duration(milliseconds: 250);
+
 class FutureTracker {
   final String id;
   final DateTime createdAt;
   final Duration delayDuration;
 
-  FutureTracker({
-    required this.id,
-    this.delayDuration = taskDuration
-  }) :
-        createdAt = DateTime.now();
+  FutureTracker({required this.id, this.delayDuration = taskDuration})
+      : createdAt = DateTime.now();
 
   @override
   String toString() =>
@@ -27,12 +24,10 @@ class FutureTracker {
 }
 
 void main() {
-
   group('RejectAfterThresholdResolver - concurrency tests in FIFO', () {
-
     test('1 concurrent execution', () async {
-      final resolver =
-      RejectAfterThresholdResolver<FutureTracker>(taskId: 'test 1', taskThreshold: 1);
+      final resolver = RejectAfterThresholdResolver<FutureTracker>(
+          managerId: 'test', taskId: 'test 1', taskThreshold: 1);
 
       final startedAt = DateTime.now();
       final future1 = resolver.executeTask(
@@ -40,22 +35,19 @@ void main() {
         task: (status) async => FutureTracker(id: 'Task 1').delay(),
       );
 
-      final results = await Future
-          .wait([future1]);
+      final results = await Future.wait([future1]);
 
       final future1FinishedAt = results[0].result?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
-      expect(
-          future1FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[0].result?.id} was not executed when requested'
-      );
+      expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[0].result?.id} was not executed when requested');
     });
 
     test('2 concurrent executions', () async {
-      final resolver =
-      RejectAfterThresholdResolver<FutureTracker>(taskId: 'test 2', taskThreshold: 1);
+      final resolver = RejectAfterThresholdResolver<FutureTracker>(
+          managerId: 'test', taskId: 'test 2', taskThreshold: 1);
 
       final startedAt = DateTime.now();
       final Future<TaskResult<FutureTracker>> future1 = resolver.executeTask(
@@ -68,8 +60,7 @@ void main() {
         task: (status) async => FutureTracker(id: 'Task 2').delay(),
       );
 
-      final results = await Future
-          .wait([future1, future2]);
+      final results = await Future.wait([future1, future2]);
 
       expect(results[0].result, isNotNull);
       expect(results[0].exception, isNull);
@@ -81,16 +72,14 @@ void main() {
       final future1FinishedAt = results[0].result?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
-      expect(
-          future1FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[0].result!.id} was not executed when requested'
-      );
+      expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[0].result!.id} was not executed when requested');
     });
 
     test('3 concurrent executions', () async {
-      final resolver =
-      RejectAfterThresholdResolver<FutureTracker>(taskId: 'test 2', taskThreshold: 2);
+      final resolver = RejectAfterThresholdResolver<FutureTracker>(
+          managerId: 'test', taskId: 'test 2', taskThreshold: 2);
 
       final startedAt = DateTime.now();
       final Future<TaskResult<FutureTracker>> future1 = resolver.executeTask(
@@ -108,8 +97,7 @@ void main() {
         task: (status) async => FutureTracker(id: 'Task 2').delay(),
       );
 
-      final results = await Future
-          .wait([future1, future2, future3]);
+      final results = await Future.wait([future1, future2, future3]);
 
       expect(results[0].result, isNotNull);
       expect(results[0].exception, isNull);
@@ -126,22 +114,18 @@ void main() {
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
 
-      expect(
-          future1FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[0].result!.id} was not executed when requested'
-      );
+      expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[0].result!.id} was not executed when requested');
 
-      expect(
-          future2FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[1].result!.id} was not executed when requested'
-      );
+      expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[1].result!.id} was not executed when requested');
     });
 
     test('3 not concurrent executions', () async {
-      final resolver =
-      RejectAfterThresholdResolver<FutureTracker>(taskId: 'test 3', taskThreshold: 2);
+      final resolver = RejectAfterThresholdResolver<FutureTracker>(
+          managerId: 'test', taskId: 'test 3', taskThreshold: 2);
 
       final startedAt = DateTime.now();
       final Future<TaskResult<FutureTracker>> future1 = resolver.executeTask(
@@ -154,13 +138,12 @@ void main() {
         task: (status) async => FutureTracker(id: 'Task 2').delay(),
       );
 
-      final results = await Future
-          .wait([future1, future2]);
+      final results = await Future.wait([future1, future2]);
 
       late final Future<TaskResult<FutureTracker>> future3;
       expect(
-        (){
-              future3 = resolver.executeTask(
+        () {
+          future3 = resolver.executeTask(
             callerReference: '3 concurrent executions',
             task: (status) async => FutureTracker(id: 'Task 3').delay(),
           );
@@ -177,23 +160,18 @@ void main() {
       expect(future2FinishedAt, isNotNull);
       expect(future3FinishedAt, isNotNull);
 
-      expect(
-          future1FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[0].result?.id} was not executed when requested'
-      );
+      expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[0].result?.id} was not executed when requested');
 
-      expect(
-          future2FinishedAt!.difference(startedAt),
-          lessThan(taskDuration),
-          reason: 'The ${results[1].result?.id} was not executed when requested'
-      );
+      expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
+          reason:
+              'The ${results[1].result?.id} was not executed when requested');
 
-      expect(
-          future3FinishedAt!.difference(startedAt),
+      expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
-          reason: 'The ${results[2].result?.id} was not executed when requested'
-      );
+          reason:
+              'The ${results[2].result?.id} was not executed when requested');
     });
   });
 }

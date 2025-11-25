@@ -4,19 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../integrations/manager_integration_test.dart';
 
-
 class FutureTracker {
   final String id;
   final String expectedOutput;
   final DateTime createdAt;
   final Future<TaskResult> futureInstance;
 
-  FutureTracker({
-    required this.id,
-    required this.expectedOutput,
-    required this.createdAt,
-    required this.futureInstance
-  });
+  FutureTracker(
+      {required this.id,
+      required this.expectedOutput,
+      required this.createdAt,
+      required this.futureInstance});
 
   @override
   String toString() =>
@@ -34,36 +32,33 @@ Future<String> simpleTaskCalculator({
 
 void main() {
   group('SharedResultResolver - concurrency tests', () {
-
     test('1 concurrent execution', () async {
-      final resolver = SharedResultResolver(taskId: '1');
+      final resolver = SharedResultResolver(managerId: 'test', taskId: '1');
 
       final future = await resolver.executeTask(
           callerReference: '1 concurrent execution',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '1')
-      );
+          task: (status) => simpleTaskCalculator(taskId: '1', number: '1'));
 
       expect(future.result, '1: 2',
           reason: 'The result of simpleTask is different than expected');
     });
 
     test('2 concurrent executions', () async {
-      final resolver = SharedResultResolver(taskId: '1');
+      final resolver = SharedResultResolver(managerId: 'test', taskId: '1');
 
       final result1 = resolver.executeTask(
-          callerReference: '2 concurrent executions',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '1'),
+        callerReference: '2 concurrent executions',
+        task: (status) => simpleTaskCalculator(taskId: '1', number: '1'),
       );
 
       await Future.delayed(const Duration(milliseconds: 50));
 
       final result2 = resolver.executeTask(
-          callerReference: '2 concurrent executions',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '2'),
+        callerReference: '2 concurrent executions',
+        task: (status) => simpleTaskCalculator(taskId: '1', number: '2'),
       );
 
-      final results = await Future
-          .wait([result1, result2]);
+      final results = await Future.wait([result1, result2]);
 
       expect(results.first.hashCode, results.last.hashCode,
           reason: 'The execution of request 1 was not shared with request 2');
@@ -76,29 +71,28 @@ void main() {
     });
 
     test('3 concurrent executions', () async {
-      final resolver = SharedResultResolver(taskId: '1');
+      final resolver = SharedResultResolver(managerId: 'test', taskId: '1');
 
       final result1 = resolver.executeTask(
-          callerReference: '3 concurrent executions',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '1'),
+        callerReference: '3 concurrent executions',
+        task: (status) => simpleTaskCalculator(taskId: '1', number: '1'),
       );
 
       await Future.delayed(const Duration(milliseconds: 50));
 
       final result2 = resolver.executeTask(
-          callerReference: '3 concurrent executions',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '2'),
+        callerReference: '3 concurrent executions',
+        task: (status) => simpleTaskCalculator(taskId: '1', number: '2'),
       );
 
       await Future.delayed(const Duration(milliseconds: 50));
 
       final result3 = resolver.executeTask(
-          callerReference: '3 concurrent executions',
-          task: (status) => simpleTaskCalculator(taskId: '1', number: '3'),
+        callerReference: '3 concurrent executions',
+        task: (status) => simpleTaskCalculator(taskId: '1', number: '3'),
       );
 
-      final results = await Future
-          .wait([result1, result2, result3]);
+      final results = await Future.wait([result1, result2, result3]);
 
       expect(results[0].result, '1: 2',
           reason: 'The result of simpleTask is different than expected');
@@ -117,7 +111,7 @@ void main() {
     });
 
     test('2 not concurrent executions', () async {
-      final resolver = SharedResultResolver(taskId: '1');
+      final resolver = SharedResultResolver(managerId: 'test', taskId: '1');
 
       final result1 = resolver.executeTask(
         callerReference: '2 not concurrent executions',
@@ -131,27 +125,21 @@ void main() {
         task: (status) => simpleTaskCalculator(taskId: '1', number: '2'),
       );
 
-      final results = await Future
-          .wait([result1, result2]);
+      final results = await Future.wait([result1, result2]);
 
-      expect(
-          results.first.hashCode,
-          isNot(equals(results.last.hashCode)),
+      expect(results.first.hashCode, isNot(equals(results.last.hashCode)),
           reason: 'The execution of request 1 was shared with request 2');
 
-      expect(
-          results.first.result,
-          '1: 2',
+      expect(results.first.result, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
-      expect(
-          results.last.result,
-          '1: 3',
+      expect(results.last.result, '1: 3',
           reason: 'The result of simpleTask is different than expected');
     });
 
     test('cached execution', () async {
-      final resolver = SharedResultResolver<DateTime>(taskId: '1');
+      final resolver =
+          SharedResultResolver<DateTime>(managerId: 'test', taskId: '1');
 
       final future1 = resolver.executeTask(
         callerReference: 'cached execution',

@@ -36,7 +36,6 @@ class SharedResultResolver<T> extends TaskResolver<T> {
     CacheRepository? cacheRepository,
   }) : cache = cacheRepository ?? MemoryRepository();
 
-
   /// Execution flow:
   /// 1. If a valid cached value exists, returns it immediately without executing the task.
   /// 2. If an execution is already in progress, attaches the caller to the existing task.

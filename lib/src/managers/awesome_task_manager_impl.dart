@@ -1,7 +1,5 @@
 import 'dart:developer' as dev;
 
-import 'package:awesome_task_manager/src/logs/log_listener.dart';
-
 import '../../awesome_task_manager.dart';
 
 class AwesomeTaskManagerImpl implements AwesomeTaskManager {

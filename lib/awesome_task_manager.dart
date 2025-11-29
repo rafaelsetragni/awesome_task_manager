@@ -10,4 +10,6 @@ export 'src/managers/awesome_task_manager.dart';
 export 'src/managers/task_manager.dart';
 export 'src/managers/task_manager_impl.dart';
 export 'src/status/task_status.dart';
+export 'src/tasks/task_result.dart';
+export 'src/types/types.dart';
 export 'src/widgets/task_observer_widget.dart';

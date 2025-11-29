@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
 import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
 
 /// A task resolver that enforces a strict concurrency threshold per [taskId].
 ///
@@ -41,7 +40,7 @@ class RejectAfterThresholdResolver<T> extends TaskResolver<T> {
     if (taskQueue.length >= taskThreshold) {
       AwesomeTaskManager().log('$taskId: task rejected', name: callerReference);
       return Future.value(
-          (result: null, exception: TooManyTasksException(taskId)));
+          TaskResult(result: null, exception: TooManyTasksException(taskId)));
     }
 
     CancelableTask<T> completer = CancelableTask(

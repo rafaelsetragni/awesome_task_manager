@@ -4,8 +4,6 @@ import 'dart:collection';
 import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 
-import '../types/types.dart';
-
 /// Base class responsible for coordinating execution flow for tasks that share a logical identifier.
 ///
 /// A [TaskResolver] defines how tasks are scheduled, queued, executed, cancelled, or reused,
@@ -75,19 +73,19 @@ abstract class TaskResolver<T> {
       _tasksRunning += taskIncrement;
       T? finalValue = await cancelableTaskReference.execute();
       // Successful completion: return value with no exception.
-      return (result: finalValue, exception: null);
+      return TaskResult(result: finalValue, exception: null);
     } on Exception catch (e) {
       if (taskIncrement > 0) {
         AwesomeTaskManager()
             .log('[$taskId] Task encountered an error: $e', name: tag);
       }
-      return (result: null, exception: e);
+      return TaskResult(result: null, exception: e);
     } catch (e) {
       if (taskIncrement > 0) {
         AwesomeTaskManager()
             .log('[$taskId] Task encountered an error: $e', name: tag);
       }
-      return (result: null, exception: Exception(e));
+      return TaskResult(result: null, exception: Exception(e));
     } finally {
       // Cleanup phase: update counters and report completion time.
       _tasksRunning -= taskIncrement;

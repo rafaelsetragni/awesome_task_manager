@@ -1,6 +1,6 @@
 import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
+import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../integrations/manager_integration_test.dart';
@@ -223,6 +223,71 @@ void main() {
 
       TaskManager.taskStreamsByManagerId.clear();
       TaskManager.taskStreamsByTaskId.clear();
+    });
+  });
+
+  group('TaskManager - observable streams default to global', () {
+    test(
+        'getObservableStreamByTaskId should return global stream when taskId is null',
+        () async {
+      final globalStream = TaskManager.allTasksStream;
+      final stream = TaskManager.getObservableStreamByTaskId(taskId: null);
+
+      expect(identical(stream, globalStream), isTrue);
+
+      final events = <TaskStatus?>[];
+      final sub = stream.stream.listen(events.add);
+
+      final task = CancelableTask<int>(
+        managerId: 'manager-a',
+        taskId: 'task-a',
+        task: (status) async => 1,
+      );
+
+      task.started = true;
+
+      await Future.delayed(Duration.zero);
+      await sub.cancel();
+
+      final emittedStatuses =
+          events.whereType<TaskStatus>().toList(growable: false);
+
+      expect(emittedStatuses, isNotEmpty,
+          reason: 'Global stream should receive task status events');
+      expect(emittedStatuses.first.taskId, equals('task-a'));
+      expect(emittedStatuses.first.managerId, equals('manager-a'));
+    });
+
+    test(
+        'getObservableStreamByManagerId should return global stream when managerId is null',
+        () async {
+      final globalStream = TaskManager.allTasksStream;
+      final stream =
+          TaskManager.getObservableStreamByManagerId(managerId: null);
+
+      expect(identical(stream, globalStream), isTrue);
+
+      final events = <TaskStatus?>[];
+      final sub = stream.stream.listen(events.add);
+
+      final task = CancelableTask<int>(
+        managerId: 'manager-b',
+        taskId: 'task-b',
+        task: (status) async => 1,
+      );
+
+      task.started = true;
+
+      await Future.delayed(Duration.zero);
+      await sub.cancel();
+
+      final emittedStatuses =
+          events.whereType<TaskStatus>().toList(growable: false);
+
+      expect(emittedStatuses, isNotEmpty,
+          reason: 'Global stream should receive manager task status events');
+      expect(emittedStatuses.first.taskId, equals('task-b'));
+      expect(emittedStatuses.first.managerId, equals('manager-b'));
     });
   });
 

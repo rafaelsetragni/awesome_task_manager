@@ -1,6 +1,5 @@
-import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
+import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/reject_after_threshold_resolver.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const taskDuration = Duration(milliseconds: 250);

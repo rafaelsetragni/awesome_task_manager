@@ -1,5 +1,5 @@
+import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/shared_result_resolver.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../integrations/manager_integration_test.dart';

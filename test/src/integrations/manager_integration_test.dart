@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
-import 'package:awesome_task_manager/src/managers/awesome_task_manager.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
+import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const testNameRandom = 'Random Tasks';

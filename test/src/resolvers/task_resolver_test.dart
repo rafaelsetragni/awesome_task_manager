@@ -1,7 +1,6 @@
-import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
+import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
 import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

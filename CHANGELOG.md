@@ -1,3 +1,9 @@
+## 1.0.2
+
+* Introduced typed task outcomes via `TaskResult`, `TaskSuccess`, and `TaskFailure` for clearer result handling.
+* Documented task status streams (`getTaskStatusStream` and `getManagerTaskStatusStream`) with usage guidance and examples in README.
+* Updated example loading overlay to cover the entire screen while reset tasks run.
+
 ## 1.0.1
 
 * Prepared for publishing on pub.dev with high documentation coverage.

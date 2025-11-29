@@ -63,6 +63,7 @@ Your contributions help us enhance and maintain our plugins. Donations are used 
   - [Usage 📝](#usage-)
 - [How it Works ⚙️](#how-it-works-️)
 - [AwesomeTaskObserver 👁️](#awesometaskobserver-️)
+- [Task Status Streams 📡](#task-status-streams-)
 - [Tasks 🛠️](#tasks-️)
   - [Overview 🔍](#overview-)
     - [Key Properties 🗝️](#key-properties-️)
@@ -102,7 +103,7 @@ To use AwesomeTaskManager, add it to your Flutter project by including the follo
 
 ```yaml
 dependencies:
-  awesome_task_manager: ^1.0.1 // <- always ensure to use the last version available
+  awesome_task_manager: ^2.0.0 // <- always ensure to use the last version available
 ```
 
 Then run the following command at your root project folder to download the package:
@@ -227,6 +228,60 @@ AwesomeTaskObserver(
   },
 )
 ```
+
+<br>
+<br>
+
+# Task Status Streams 📡
+
+Besides the UI-focused `AwesomeTaskObserver`, you can subscribe directly to the task status streams to integrate with other state management tools or to build custom logging dashboards.
+
+## getTaskStatusStream
+
+Listen for updates of a specific `taskId` across all managers or filter by a particular task.
+
+```dart
+final taskManager = AwesomeTaskManager();
+
+final subscription = taskManager
+    .getTaskStatusStream(taskId: 'fetch-user-data')
+    .listen((status) {
+  if (status == null) return;
+  if (status.isExecuting) {
+    debugPrint('Task ${status.taskId} is running');
+  } else if (status.isCompleted) {
+    debugPrint('Task ${status.taskId} completed with: ${status.result}');
+  } else if (status.isCancelled) {
+    debugPrint('Task ${status.taskId} was cancelled');
+  }
+});
+
+// Later on, when you no longer need updates:
+subscription.cancel();
+```
+
+Use this when you want to react to a single task lifecycle, such as updating a Riverpod provider, emitting a Bloc event, or writing analytics events for that task only.
+
+## getManagerTaskStatusStream
+
+Observe every task change inside a specific `managerId` (or all managers if you omit the parameter). This is handy for building global progress indicators per feature area, batching logs, or triggering side effects whenever any task in the manager changes state.
+
+```dart
+final taskManager = AwesomeTaskManager();
+
+final subscription = taskManager
+    .getManagerTaskStatusStream(managerId: 'api-requests')
+    .listen((status) {
+  if (status == null) return;
+  debugPrint(
+      'Manager ${status.managerId} -> ${status.taskId}: ${status.connectionState}');
+});
+
+// Always dispose the subscription when appropriate.
+subscription.cancel();
+```
+
+Both streams emit every status transition, so remember to cancel the subscription to prevent memory leaks. They are especially useful outside the widget tree where `AwesomeTaskObserver` is not a good fit.
 
 <br>
 <br>

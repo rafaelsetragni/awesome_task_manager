@@ -6,7 +6,6 @@ import 'package:awesome_task_manager/src/resolvers/sequential_queue_resolver.dar
 import 'package:awesome_task_manager/src/resolvers/shared_result_resolver.dart';
 
 import '../../awesome_task_manager.dart';
-import '../types/types.dart';
 
 class SharedResultManager extends TaskManager {
   final String managerId;

@@ -10,12 +10,6 @@ typedef TaskExecution = Future<void> Function(String tag);
 /// Allows centralized error handling and custom recovery logic.
 typedef TaskExceptionHandler = void Function(Exception exception);
 
-/// Structured tuple returned after a task completes.
-///
-/// Contains either a [result] of type [T] on success, or an [exception] when execution fails.
-/// Only one of these fields is expected to be non-null at a time.
-typedef TaskResult<T> = ({T? result, Exception? exception});
-
 /// Represents an asynchronous unit of work that receives a read-only [TaskStatus]
 /// snapshot for context and returns a result of type [T].
 ///

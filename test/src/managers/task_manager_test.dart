@@ -1,11 +1,24 @@
 import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
+import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../integrations/manager_integration_test.dart';
 
 class FakeTaskResolver<T> extends Fake implements TaskResolver<T> {}
+
+class _ExposedTaskManager extends TaskManager {
+  TaskResolver<T> exposeResolver<T>({
+    String? taskId,
+    String? managerId,
+    required TaskResolver<T> Function() factory,
+  }) =>
+      getResolver<T>(
+        taskId: taskId,
+        managerId: managerId,
+        factory: factory,
+      );
+}
 
 void main() {
   final managerId = 'manager 1';
@@ -51,7 +64,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeTask in sequentialQueue mode', () async {
@@ -68,7 +81,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeTask in TaskPool mode', () async {
@@ -116,12 +129,12 @@ void main() {
       expect(countingTasksInExecution(), 1);
 
       for (int count = 0; count < poolSize; count++) {
-        expect(taskResults[count].result, count);
+        expect(taskResults[count].value, count);
         expect(taskResults[count].exception, isNull);
       }
 
       TaskResult<int> lastResult = await extraFuture;
-      expect(lastResult.result, poolSize + 1);
+      expect(lastResult.value, poolSize + 1);
       expect(lastResult.exception, isNull);
       expect(countingTasksInExecution(), 0);
     });
@@ -141,7 +154,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeCancellingPreviousTask', () async {
@@ -170,7 +183,111 @@ void main() {
       expect(result1.exception, isA<CancellationException>());
 
       final result2 = await future2;
-      expect(result2.result, 'second');
+      expect(result2.value, 'second');
+    });
+  });
+
+  group('TaskManager - getResolver', () {
+    test('should assert when neither taskId nor managerId is provided', () {
+      final manager = _ExposedTaskManager();
+
+      expect(manager.taskResolvers, isEmpty);
+      expect(
+        () => manager.exposeResolver<String>(
+          factory: () => FakeTaskResolver<String>(),
+        ),
+        throwsAssertionError,
+      );
+      expect(manager.taskResolvers, isEmpty);
+    });
+
+    test('should cache resolver when using only managerId', () {
+      final manager = _ExposedTaskManager();
+      const managerKey = 'manager-only';
+
+      final resolver1 = manager.exposeResolver<String>(
+        managerId: managerKey,
+        factory: () => FakeTaskResolver<String>(),
+      );
+
+      final resolver2 = manager.exposeResolver<String>(
+        managerId: managerKey,
+        factory: () => FakeTaskResolver<String>(),
+      );
+
+      expect(identical(resolver1, resolver2), isTrue);
+      expect(
+        TaskManager.taskStreamsByManagerId.containsKey(managerKey),
+        isTrue,
+      );
+
+      TaskManager.taskStreamsByManagerId.clear();
+      TaskManager.taskStreamsByTaskId.clear();
+    });
+  });
+
+  group('TaskManager - observable streams default to global', () {
+    test(
+        'getObservableStreamByTaskId should return global stream when taskId is null',
+        () async {
+      final globalStream = TaskManager.allTasksStream;
+      final stream = TaskManager.getObservableStreamByTaskId(taskId: null);
+
+      expect(identical(stream, globalStream), isTrue);
+
+      final events = <TaskStatus?>[];
+      final sub = stream.stream.listen(events.add);
+
+      final task = CancelableTask<int>(
+        managerId: 'manager-a',
+        taskId: 'task-a',
+        task: (status) async => 1,
+      );
+
+      task.started = true;
+
+      await Future.delayed(Duration.zero);
+      await sub.cancel();
+
+      final emittedStatuses =
+          events.whereType<TaskStatus>().toList(growable: false);
+
+      expect(emittedStatuses, isNotEmpty,
+          reason: 'Global stream should receive task status events');
+      expect(emittedStatuses.first.taskId, equals('task-a'));
+      expect(emittedStatuses.first.managerId, equals('manager-a'));
+    });
+
+    test(
+        'getObservableStreamByManagerId should return global stream when managerId is null',
+        () async {
+      final globalStream = TaskManager.allTasksStream;
+      final stream =
+          TaskManager.getObservableStreamByManagerId(managerId: null);
+
+      expect(identical(stream, globalStream), isTrue);
+
+      final events = <TaskStatus?>[];
+      final sub = stream.stream.listen(events.add);
+
+      final task = CancelableTask<int>(
+        managerId: 'manager-b',
+        taskId: 'task-b',
+        task: (status) async => 1,
+      );
+
+      task.started = true;
+
+      await Future.delayed(Duration.zero);
+      await sub.cancel();
+
+      final emittedStatuses =
+          events.whereType<TaskStatus>().toList(growable: false);
+
+      expect(emittedStatuses, isNotEmpty,
+          reason: 'Global stream should receive manager task status events');
+      expect(emittedStatuses.first.taskId, equals('task-b'));
+      expect(emittedStatuses.first.managerId, equals('manager-b'));
     });
   });
 

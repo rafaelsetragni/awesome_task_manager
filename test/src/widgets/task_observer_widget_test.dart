@@ -65,7 +65,7 @@ void main() {
 
     setUp(() {
       managerController = ObservableStream<TaskStatus?>();
-      when(mockTaskManager.getManagerTaskStatusStream(managerId: managerId))
+      when(mockTaskManager.getTaskStatusStream(managerId: managerId))
           .thenAnswer((_) => managerController.stream);
     });
 

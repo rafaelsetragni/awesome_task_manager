@@ -51,7 +51,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeTask in sequentialQueue mode', () async {
@@ -68,7 +68,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeTask in TaskPool mode', () async {
@@ -116,12 +116,12 @@ void main() {
       expect(countingTasksInExecution(), 1);
 
       for (int count = 0; count < poolSize; count++) {
-        expect(taskResults[count].result, count);
+        expect(taskResults[count].value, count);
         expect(taskResults[count].exception, isNull);
       }
 
       TaskResult<int> lastResult = await extraFuture;
-      expect(lastResult.result, poolSize + 1);
+      expect(lastResult.value, poolSize + 1);
       expect(lastResult.exception, isNull);
       expect(countingTasksInExecution(), 0);
     });
@@ -141,7 +141,7 @@ void main() {
         returnsNormally,
       );
       final TaskResult<int> taskResult = await future;
-      expect(taskResult.result, 1);
+      expect(taskResult.value, 1);
     });
 
     test('TaskManager - executeCancellingPreviousTask', () async {
@@ -170,7 +170,7 @@ void main() {
       expect(result1.exception, isA<CancellationException>());
 
       final result2 = await future2;
-      expect(result2.result, 'second');
+      expect(result2.value, 'second');
     });
   });
 

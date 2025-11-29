@@ -34,8 +34,8 @@ void main() {
 
       final results = await Future.wait([future1, future2]);
 
-      expect(results[0].result, 'completed: task1');
-      expect(results[1].result, 'completed: task2');
+      expect(results[0].value, 'completed: task1');
+      expect(results[1].value, 'completed: task2');
     });
 
     test('should cancel the oldest task when limit is reached', () async {
@@ -64,7 +64,7 @@ void main() {
 
       // The second future should complete successfully
       final result2 = await future2;
-      expect(result2.result, 'completed: task2');
+      expect(result2.value, 'completed: task2');
     });
 
     test('should cancel the oldest task when limit of 2 is reached', () async {
@@ -99,8 +99,8 @@ void main() {
 
       // The second and third futures should complete successfully
       final results = await Future.wait([future2, future3]);
-      expect(results[0].result, 'completed: task2');
-      expect(results[1].result, 'completed: task3');
+      expect(results[0].value, 'completed: task2');
+      expect(results[1].value, 'completed: task3');
     });
 
     test('should handle rapid execution', () async {
@@ -129,7 +129,7 @@ void main() {
       }
 
       // The last task should complete successfully
-      expect(results[4].result, 'completed: task4');
+      expect(results[4].value, 'completed: task4');
       expect(results[4].exception, isNull);
     });
   });

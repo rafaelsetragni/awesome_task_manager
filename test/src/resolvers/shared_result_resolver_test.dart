@@ -39,7 +39,7 @@ void main() {
           callerReference: '1 concurrent execution',
           task: (status) => simpleTaskCalculator(taskId: '1', number: '1'));
 
-      expect(future.result, '1: 2',
+      expect(future.value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
     });
 
@@ -63,10 +63,10 @@ void main() {
       expect(results.first.hashCode, results.last.hashCode,
           reason: 'The execution of request 1 was not shared with request 2');
 
-      expect(results.first.result, '1: 2',
+      expect(results.first.value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
-      expect(results.last.result, '1: 2',
+      expect(results.last.value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
     });
 
@@ -94,13 +94,13 @@ void main() {
 
       final results = await Future.wait([result1, result2, result3]);
 
-      expect(results[0].result, '1: 2',
+      expect(results[0].value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
-      expect(results[1].result, '1: 2',
+      expect(results[1].value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
-      expect(results[2].result, '1: 2',
+      expect(results[2].value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
       expect(results[0].hashCode, results[1].hashCode,
@@ -130,10 +130,10 @@ void main() {
       expect(results.first.hashCode, isNot(equals(results.last.hashCode)),
           reason: 'The execution of request 1 was shared with request 2');
 
-      expect(results.first.result, '1: 2',
+      expect(results.first.value, '1: 2',
           reason: 'The result of simpleTask is different than expected');
 
-      expect(results.last.result, '1: 3',
+      expect(results.last.value, '1: 3',
           reason: 'The result of simpleTask is different than expected');
     });
 

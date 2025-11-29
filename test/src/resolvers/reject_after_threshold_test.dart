@@ -36,12 +36,12 @@ void main() {
 
       final results = await Future.wait([future1]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
     });
 
     test('2 concurrent executions', () async {
@@ -61,19 +61,19 @@ void main() {
 
       final results = await Future.wait([future1, future2]);
 
-      expect(results[0].result, isNotNull);
+      expect(results[0].value, isNotNull);
       expect(results[0].exception, isNull);
 
-      expect(results[1].result, isNull);
+      expect(results[1].value, isNull);
       expect(results[1].exception, isNotNull);
       expect(results[1].exception, isA<TooManyTasksException>());
 
-      final future1FinishedAt = results[0].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result!.id} was not executed when requested');
+              'The ${results[0].value!.id} was not executed when requested');
     });
 
     test('3 concurrent executions', () async {
@@ -98,28 +98,28 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3]);
 
-      expect(results[0].result, isNotNull);
+      expect(results[0].value, isNotNull);
       expect(results[0].exception, isNull);
 
-      expect(results[1].result, isNotNull);
+      expect(results[1].value, isNotNull);
       expect(results[1].exception, isNull);
 
-      expect(results[2].result, isNull);
+      expect(results[2].value, isNull);
       expect(results[2].exception, isNotNull);
       expect(results[2].exception, isA<TooManyTasksException>());
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[0].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[0].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result!.id} was not executed when requested');
+              'The ${results[0].value!.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[1].result!.id} was not executed when requested');
+              'The ${results[1].value!.id} was not executed when requested');
     });
 
     test('3 not concurrent executions', () async {
@@ -152,25 +152,25 @@ void main() {
 
       results.add(await future3);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
-      final future3FinishedAt = results[2].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
+      final future3FinishedAt = results[2].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
       expect(future3FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[1].result?.id} was not executed when requested');
+              'The ${results[1].value?.id} was not executed when requested');
 
       expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[2].result?.id} was not executed when requested');
+              'The ${results[2].value?.id} was not executed when requested');
     });
   });
 }

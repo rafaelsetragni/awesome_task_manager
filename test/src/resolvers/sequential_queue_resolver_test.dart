@@ -40,12 +40,12 @@ void main() {
 
       final results = await Future.wait([future1]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
     });
 
     test('2 concurrent executions', () async {
@@ -65,19 +65,19 @@ void main() {
 
       final results = await Future.wait([future1, future2]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[1].result?.id} did not wait for previous tasks');
+              'The ${results[1].value?.id} did not wait for previous tasks');
     });
 
     test('3 concurrent executions', () async {
@@ -102,26 +102,26 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
-      final future3FinishedAt = results[2].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
+      final future3FinishedAt = results[2].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
       expect(future3FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[1].result?.id} did not wait for previous tasks');
+              'The ${results[1].value?.id} did not wait for previous tasks');
 
       expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration * 2),
           reason:
-              'The ${results[2].result?.id} did not wait for previous tasks');
+              'The ${results[2].value?.id} did not wait for previous tasks');
     });
   });
 
@@ -138,12 +138,12 @@ void main() {
 
       final results = await Future.wait([future1]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
     });
 
     test('2 parallel concurrent executions', () async {
@@ -163,18 +163,18 @@ void main() {
 
       final results = await Future.wait([future1, future2]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[1].result?.id} was not executed when requested');
+              'The ${results[1].value?.id} was not executed when requested');
     });
 
     test('3 parallel concurrent executions', () async {
@@ -199,25 +199,25 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
-      final future3FinishedAt = results[2].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
+      final future3FinishedAt = results[2].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
       expect(future3FinishedAt, isNotNull);
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[1].result?.id} was not executed when requested');
+              'The ${results[1].value?.id} was not executed when requested');
 
       expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[2].result?.id} did not wait for previous tasks');
+              'The ${results[2].value?.id} did not wait for previous tasks');
     });
 
     test('4 parallel concurrent executions', () async {
@@ -247,10 +247,10 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3, future4]);
 
-      final future1FinishedAt = results[0].result?.createdAt;
-      final future2FinishedAt = results[1].result?.createdAt;
-      final future3FinishedAt = results[2].result?.createdAt;
-      final future4FinishedAt = results[3].result?.createdAt;
+      final future1FinishedAt = results[0].value?.createdAt;
+      final future2FinishedAt = results[1].value?.createdAt;
+      final future3FinishedAt = results[2].value?.createdAt;
+      final future4FinishedAt = results[3].value?.createdAt;
       expect(future1FinishedAt, isNotNull);
       expect(future2FinishedAt, isNotNull);
       expect(future3FinishedAt, isNotNull);
@@ -258,26 +258,26 @@ void main() {
 
       expect(future1FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[0].result?.id} was not executed when requested');
+              'The ${results[0].value?.id} was not executed when requested');
 
       expect(future2FinishedAt!.difference(startedAt), lessThan(taskDuration),
           reason:
-              'The ${results[1].result?.id} was not executed when requested');
+              'The ${results[1].value?.id} was not executed when requested');
 
       expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[2].result?.id} did not wait for previous tasks');
+              'The ${results[2].value?.id} did not wait for previous tasks');
 
       expect(future3FinishedAt!.difference(startedAt),
           greaterThanOrEqualTo(taskDuration),
           reason:
-              'The ${results[3].result?.id} did not wait for previous tasks');
+              'The ${results[3].value?.id} did not wait for previous tasks');
 
       expect(
           future3FinishedAt!.difference(startedAt), lessThan(taskDuration * 2),
           reason:
-              'The ${results[3].result?.id} did not wait for previous tasks');
+              'The ${results[3].value?.id} did not wait for previous tasks');
     });
 
     test('4 parallel concurrent executions with long task', () async {
@@ -311,10 +311,10 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3, future4]);
 
-      final result1 = results[0].result;
-      final result2 = results[1].result;
-      final result3 = results[2].result;
-      final result4 = results[3].result;
+      final result1 = results[0].value;
+      final result2 = results[1].value;
+      final result3 = results[2].value;
+      final result4 = results[3].value;
       expect(result1, isNotNull);
       expect(result2, isNotNull);
       expect(result3, isNotNull);
@@ -366,10 +366,10 @@ void main() {
 
       final results = await Future.wait([future1, future2, future3, future4]);
 
-      final result1 = results[0].result;
-      final result2 = results[1].result;
-      final result3 = results[2].result;
-      final result4 = results[3].result;
+      final result1 = results[0].value;
+      final result2 = results[1].value;
+      final result3 = results[2].value;
+      final result4 = results[3].value;
       expect(result1, isNotNull);
       expect(result2, isNotNull);
       expect(result3, isNotNull);

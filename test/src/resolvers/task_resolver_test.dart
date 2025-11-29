@@ -84,7 +84,7 @@ void main() {
               managerId: 'test',
               taskId: 'testTag',
               task: (status) async => 'Test Result'));
-      expect(result.result, 'Test Result');
+      expect(result.value, 'Test Result');
       expect(result.exception, isNull);
     });
 
@@ -97,7 +97,7 @@ void main() {
               taskId: 'testTag',
               task: (status) async => throw Exception('Test Exception')));
 
-      expect(result.result, isNull);
+      expect(result.value, isNull);
       expect(result.exception, isNotNull);
     });
   });
@@ -244,7 +244,7 @@ void main() {
             task: (status) async => 'Test Result'),
       );
 
-      expect(result.result, 'Test Result');
+      expect(result.value, 'Test Result');
       expect(result.exception, isNull);
       verify(mockStopwatch.start()).called(1);
       verify(mockStopwatch.stop()).called(1);
@@ -262,7 +262,7 @@ void main() {
                 throw Exception('Test Exception');
               }));
 
-      expect(result.result, isNull);
+      expect(result.value, isNull);
       expect(result.exception, isNotNull);
 
       verify(mockStopwatch.start()).called(1);
@@ -283,7 +283,7 @@ void main() {
             }),
       );
 
-      expect(result.result, isNull);
+      expect(result.value, isNull);
       expect(result.exception, isNotNull);
 
       verify(mockStopwatch.start()).called(1);

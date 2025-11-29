@@ -12,7 +12,8 @@ void main() {
       test('write a non-expired value', () async {
         String key = 'testKey';
         String value = 'testValue';
-        DateTime expirationDate = DateTime.now().add(const Duration(seconds: 10));
+        DateTime expirationDate =
+            DateTime.now().add(const Duration(seconds: 10));
 
         bool result = await cache.write<String>(
           key: key,
@@ -41,9 +42,7 @@ void main() {
         bool result2 = await cache.write<String>(
           key: key,
           value: value,
-          expirationDate: DateTime
-              .now()
-              .subtract(const Duration(seconds: 10)),
+          expirationDate: DateTime.now().subtract(const Duration(seconds: 10)),
         );
 
         expect(result2, isFalse);
@@ -57,7 +56,8 @@ void main() {
       test('read a non-expired value', () async {
         String key = 'testKey';
         String value = 'testValue';
-        DateTime expirationDate = DateTime.now().add(const Duration(seconds: 10));
+        DateTime expirationDate =
+            DateTime.now().add(const Duration(seconds: 10));
         await cache.write<String>(
           key: key,
           value: value,
@@ -87,8 +87,8 @@ void main() {
           await cache.write<String>(
             key: key,
             value: value,
-            expirationDate: DateTime.now()
-                .subtract(const Duration(seconds: 10)),
+            expirationDate:
+                DateTime.now().subtract(const Duration(seconds: 10)),
           ),
           isFalse,
         );
@@ -103,18 +103,18 @@ void main() {
       test('remove a present value', () async {
         String key = 'testKey';
         String value = 'testValue';
-        DateTime expirationDate = DateTime.now().add(const Duration(seconds: 10));
+        DateTime expirationDate =
+            DateTime.now().add(const Duration(seconds: 10));
         await cache.write<String>(
           key: key,
           value: value,
           expirationDate: expirationDate,
         );
 
-        dynamic result ;
+        dynamic result;
         await expectLater(
             () async => result = await cache.remove<String>(key: key),
-            returnsNormally
-        );
+            returnsNormally);
         expect(result, isNotNull);
         expect(result?.$1, equals(value));
         expect(await cache.remove<String>(key: 'invalid'), isNull);
@@ -131,7 +131,8 @@ void main() {
     });
 
     test('writeAll with non-expired values and readAll', () async {
-      List<(String key, String value, DateTime expirationDate)> valuesToWrite = [
+      List<(String key, String value, DateTime expirationDate)> valuesToWrite =
+          [
         ('key1', 'value1', DateTime.now().add(const Duration(seconds: 10))),
         ('key2', 'value2', DateTime.now().add(const Duration(seconds: 20))),
       ];
@@ -149,18 +150,22 @@ void main() {
       var readResults = await cache.readAll<String>();
       expect(readResults.length, equals(valuesToWrite.length));
       readResults.removeWhere((result) {
-        final tuple = valuesToWrite.firstWhere(
-          (element) => result.$1 == element.$1
-        );
-        expect(tuple,(tuple.$1, tuple.$2, tuple.$3));
+        final tuple =
+            valuesToWrite.firstWhere((element) => result.$1 == element.$1);
+        expect(tuple, (tuple.$1, tuple.$2, tuple.$3));
         return true;
       });
       expect(readResults.isEmpty, isTrue);
     });
 
     test('writeAll with some expired values and readAll', () async {
-      List<(String key, String value, DateTime expirationDate)> valuesToWrite = [
-        ('key1', 'value1', DateTime.now().subtract(const Duration(seconds: 10))),
+      List<(String key, String value, DateTime expirationDate)> valuesToWrite =
+          [
+        (
+          'key1',
+          'value1',
+          DateTime.now().subtract(const Duration(seconds: 10))
+        ),
         ('key2', 'value2', DateTime.now().add(const Duration(seconds: 20))),
       ];
 
@@ -171,20 +176,16 @@ void main() {
       var readResults = await cache.readAll<String>();
       expect(readResults.length, lessThan(valuesToWrite.length));
       expect(
-          readResults.any((element) => element == valuesToWrite[0]),
-          isFalse
-      );
-      expect(readResults.any(
-          (element) => element == valuesToWrite[1]),
-          isTrue
-      );
+          readResults.any((element) => element == valuesToWrite[0]), isFalse);
+      expect(readResults.any((element) => element == valuesToWrite[1]), isTrue);
     });
 
     group('clear operations', () {
       test('clear cache', () async {
         String key = 'testKey';
         String value = 'testValue';
-        DateTime expirationDate = DateTime.now().add(const Duration(seconds: 10));
+        DateTime expirationDate =
+            DateTime.now().add(const Duration(seconds: 10));
         await cache.write<String>(
           key: key,
           value: value,
@@ -199,4 +200,3 @@ void main() {
     });
   });
 }
-

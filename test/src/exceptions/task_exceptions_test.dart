@@ -9,22 +9,19 @@ void main() {
             parameterName: 'limit',
             value: null,
           ).toString(),
-          'InvalidTasksParameterException: Parameter value of limit is invalid (null)'
-      );
+          'InvalidTasksParameterException: Parameter value of limit is invalid (null)');
       expect(
           InvalidTasksParameterException(
             parameterName: 'limit',
             value: '1',
           ).toString(),
-          'InvalidTasksParameterException: Parameter value of limit is invalid (1)'
-      );
+          'InvalidTasksParameterException: Parameter value of limit is invalid (1)');
       expect(
           InvalidTasksParameterException(
             parameterName: 'limit',
             value: 1,
           ).toString(),
-          'InvalidTasksParameterException: Parameter value of limit is invalid (1)'
-      );
+          'InvalidTasksParameterException: Parameter value of limit is invalid (1)');
     });
   });
 
@@ -37,14 +34,15 @@ void main() {
 
   group('MismatchTasksReturnsException', () {
     test('MismatchTasksReturnsException - exception message', () async {
-      expect(MismatchTasksReturnsException(
-        taskId: 'Task 1',
-        typeA: String,
-        typeB: dynamic,
-      ).toString(),
+      expect(
+          MismatchTasksReturnsException(
+            taskId: 'Task 1',
+            typeA: String,
+            typeB: dynamic,
+          ).toString(),
           'MismatchTasksReturnsException: Tasks with same ID Task 1 are requesting'
-              ' different return types'
-              ' (A return: String, B return: dynamic)');
+          ' different return types'
+          ' (A return: String, B return: dynamic)');
     });
   });
 

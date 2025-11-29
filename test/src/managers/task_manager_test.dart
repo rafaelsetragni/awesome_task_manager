@@ -7,6 +7,19 @@ import '../integrations/manager_integration_test.dart';
 
 class FakeTaskResolver<T> extends Fake implements TaskResolver<T> {}
 
+class _ExposedTaskManager extends TaskManager {
+  TaskResolver<T> exposeResolver<T>({
+    String? taskId,
+    String? managerId,
+    required TaskResolver<T> Function() factory,
+  }) =>
+      getResolver<T>(
+        taskId: taskId,
+        managerId: managerId,
+        factory: factory,
+      );
+}
+
 void main() {
   final managerId = 'manager 1';
 
@@ -171,6 +184,45 @@ void main() {
 
       final result2 = await future2;
       expect(result2.value, 'second');
+    });
+  });
+
+  group('TaskManager - getResolver', () {
+    test('should assert when neither taskId nor managerId is provided', () {
+      final manager = _ExposedTaskManager();
+
+      expect(manager.taskResolvers, isEmpty);
+      expect(
+        () => manager.exposeResolver<String>(
+          factory: () => FakeTaskResolver<String>(),
+        ),
+        throwsAssertionError,
+      );
+      expect(manager.taskResolvers, isEmpty);
+    });
+
+    test('should cache resolver when using only managerId', () {
+      final manager = _ExposedTaskManager();
+      const managerKey = 'manager-only';
+
+      final resolver1 = manager.exposeResolver<String>(
+        managerId: managerKey,
+        factory: () => FakeTaskResolver<String>(),
+      );
+
+      final resolver2 = manager.exposeResolver<String>(
+        managerId: managerKey,
+        factory: () => FakeTaskResolver<String>(),
+      );
+
+      expect(identical(resolver1, resolver2), isTrue);
+      expect(
+        TaskManager.taskStreamsByManagerId.containsKey(managerKey),
+        isTrue,
+      );
+
+      TaskManager.taskStreamsByManagerId.clear();
+      TaskManager.taskStreamsByTaskId.clear();
     });
   });
 

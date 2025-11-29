@@ -85,8 +85,7 @@ class _AwesomeTaskObserverState<T> extends State<AwesomeTaskObserver<T>> {
   @override
   void initState() {
     stream = widget.managerId != null
-        ? AwesomeTaskManager()
-            .getManagerTaskStatusStream(managerId: widget.managerId)
+        ? AwesomeTaskManager().getTaskStatusStream(managerId: widget.managerId)
         : AwesomeTaskManager().getTaskStatusStream(taskId: widget.taskId);
     super.initState();
   }

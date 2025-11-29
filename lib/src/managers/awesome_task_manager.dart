@@ -27,13 +27,7 @@ abstract class AwesomeTaskManager {
   /// * A global stream with updates from all tasks when [taskId] is `null`.
   ///
   /// Useful for UI bindings, dashboards, or task monitoring components.
-  Stream<TaskStatus?> getTaskStatusStream({String? taskId});
-
-  /// Streams task status updates for all tasks that belong to a specific manager.
-  ///
-  /// If [managerId] is `null`, returns an aggregated stream of all registered managers.
-  /// Allows isolation of event visibility among separate logical domains.
-  Stream<TaskStatus?> getManagerTaskStatusStream({String? managerId});
+  Stream<TaskStatus?> getTaskStatusStream({String? taskId, String? managerId});
 
   /// Creates a [SharedResultManager] that executes a task only once per [taskId],
   /// sharing the same result among all concurrent callers while preventing duplication.

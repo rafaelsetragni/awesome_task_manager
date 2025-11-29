@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:awesome_task_manager/src/resolvers/task_resolver.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
 
+import '../../awesome_task_manager.dart';
 import '../tasks/cancelable_task.dart';
 
 /// A task resolver that automatically cancels the earliest queued task when

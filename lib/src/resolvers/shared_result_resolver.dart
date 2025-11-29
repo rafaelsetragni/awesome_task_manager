@@ -5,7 +5,6 @@ import 'package:awesome_task_manager/src/tasks/cancelable_task.dart';
 
 import '../repositories/cache_repository.dart';
 import '../repositories/memory_repository.dart';
-import '../types/types.dart';
 import 'task_resolver.dart';
 
 /// A task resolver that executes a task only once per [taskId] and shares
@@ -52,7 +51,7 @@ class SharedResultResolver<T> extends TaskResolver<T> {
   }) async {
     final lastCache = await cache.read<T>(key: taskId);
     if (lastCache?.$2.isAfter(DateTime.now()) ?? false) {
-      return (result: lastCache?.$1, exception: null);
+      return TaskResult(result: lastCache?.$1, exception: null);
     }
 
     final lastFuture = taskQueue.firstOrNull;
@@ -78,7 +77,7 @@ class SharedResultResolver<T> extends TaskResolver<T> {
       tag: callerReference,
       cancelableTaskReference: completer,
     ).then((taskResult) {
-      T? value = taskResult.result;
+      T? value = taskResult.value;
       if (value != null && cacheDuration != Duration.zero) {
         cache.write<T>(
             key: taskId,

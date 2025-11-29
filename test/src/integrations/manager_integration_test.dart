@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:awesome_task_manager/src/exceptions/task_exceptions.dart';
-import 'package:awesome_task_manager/src/managers/awesome_task_manager.dart';
-import 'package:awesome_task_manager/src/types/types.dart';
+import 'package:awesome_task_manager/awesome_task_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const testNameRandom = 'Random Tasks';
@@ -50,7 +48,7 @@ void main() {
 
       final Map<String, int> futureInstanceChecker = {};
       for (FutureInstanceTests<int> test in futures) {
-        final currentValue = (await test.futureInstance).result;
+        final currentValue = (await test.futureInstance).value;
         expect(currentValue, isNotNull);
         futureInstanceChecker[test.id] ??= currentValue!;
         final oldValue = futureInstanceChecker[test.id];
@@ -96,8 +94,8 @@ void main() {
         final result = await test.futureInstance;
         expect(result, isNotNull);
 
-        final DateTime startedAt = result.result!.$1;
-        final DateTime finishedAt = result.result!.$2;
+        final DateTime startedAt = result.value!.$1;
+        final DateTime finishedAt = result.value!.$2;
 
         startTimes[test.id] ??= [];
         startTimes[test.id]!.add((true, startedAt));
@@ -158,7 +156,7 @@ void main() {
 
       final Map<String, List<DateTime>> futureInstanceChecker = {};
       for (FutureInstanceTests<DateTime> test in futures) {
-        final currentStartedAt = (await test.futureInstance).result;
+        final currentStartedAt = (await test.futureInstance).value;
         expect(currentStartedAt, isNotNull);
         futureInstanceChecker[test.id] ??= [];
         futureInstanceChecker[test.id]!.add(currentStartedAt!);
@@ -224,10 +222,10 @@ void main() {
           in executions.entries) {
         int successfullyTasks = 0;
         for (TaskResult<DateTime> task in entry.value) {
-          if (task.result != null) {
+          if (task.value != null) {
             successfullyTasks++;
             expect(
-              task.result!.difference(startedAt),
+              task.value!.difference(startedAt),
               lessThan(taskDuration),
               reason: 'The allowed task did not executed when expected',
             );

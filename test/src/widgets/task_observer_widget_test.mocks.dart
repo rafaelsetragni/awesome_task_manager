@@ -6,7 +6,6 @@
 import 'dart:async' as _i3;
 
 import 'package:awesome_task_manager/awesome_task_manager.dart' as _i2;
-import 'package:awesome_task_manager/src/logs/log_listener.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -85,25 +84,18 @@ class _FakeCancelPreviousTaskManager_4 extends _i1.SmartFake
 class MockAwesomeTaskManager extends _i1.Mock
     implements _i2.AwesomeTaskManager {
   @override
-  _i3.Stream<_i2.TaskStatus<dynamic>?> getTaskStatusStream({String? taskId}) =>
+  _i3.Stream<_i2.TaskStatus<dynamic>?> getTaskStatusStream({
+    String? taskId,
+    String? managerId,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTaskStatusStream,
           [],
-          {#taskId: taskId},
-        ),
-        returnValue: _i3.Stream<_i2.TaskStatus<dynamic>?>.empty(),
-        returnValueForMissingStub: _i3.Stream<_i2.TaskStatus<dynamic>?>.empty(),
-      ) as _i3.Stream<_i2.TaskStatus<dynamic>?>);
-
-  @override
-  _i3.Stream<_i2.TaskStatus<dynamic>?> getManagerTaskStatusStream(
-          {String? managerId}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getManagerTaskStatusStream,
-          [],
-          {#managerId: managerId},
+          {
+            #taskId: taskId,
+            #managerId: managerId,
+          },
         ),
         returnValue: _i3.Stream<_i2.TaskStatus<dynamic>?>.empty(),
         returnValueForMissingStub: _i3.Stream<_i2.TaskStatus<dynamic>?>.empty(),
@@ -278,7 +270,7 @@ class MockAwesomeTaskManager extends _i1.Mock
       ) as _i2.CancelPreviousTaskManager);
 
   @override
-  void registerLogListener(_i4.LogListener? listener) => super.noSuchMethod(
+  void registerLogListener(_i2.LogListener? listener) => super.noSuchMethod(
         Invocation.method(
           #registerLogListener,
           [listener],
@@ -287,7 +279,7 @@ class MockAwesomeTaskManager extends _i1.Mock
       );
 
   @override
-  void unregisterLogListener(_i4.LogListener? listener) => super.noSuchMethod(
+  void unregisterLogListener(_i2.LogListener? listener) => super.noSuchMethod(
         Invocation.method(
           #unregisterLogListener,
           [listener],

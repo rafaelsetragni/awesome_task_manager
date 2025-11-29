@@ -1,7 +1,9 @@
-## 1.0.2
+## 2.0.0
 
+* Simplified status stream accessors: `getTaskStatusStream`, `getManagerTaskStatusStream`, and the internal `getStatusStream` now default to the global stream when no identifier is provided, making subscriptions easier to reason about.
+* Updated examples and tests to align with the streamlined stream behavior.
 * Introduced typed task outcomes via `TaskResult`, `TaskSuccess`, and `TaskFailure` for clearer result handling.
-* Documented task status streams (`getTaskStatusStream` and `getManagerTaskStatusStream`) with usage guidance and examples in README.
+* Documented the task status streams (`getTaskStatusStream` and `getManagerTaskStatusStream`) reflecting the simplified API and providing usage examples in README.
 * Updated example loading overlay to cover the entire screen while reset tasks run.
 
 ## 1.0.1

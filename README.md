@@ -103,7 +103,7 @@ To use AwesomeTaskManager, add it to your Flutter project by including the follo
 
 ```yaml
 dependencies:
-  awesome_task_manager: ^1.0.2 // <- always ensure to use the last version available
+  awesome_task_manager: ^2.0.0 // <- always ensure to use the last version available
 ```
 
 Then run the following command at your root project folder to download the package:

@@ -77,7 +77,7 @@ class SharedResultResolver<T> extends TaskResolver<T> {
       tag: callerReference,
       cancelableTaskReference: completer,
     ).then((taskResult) {
-      T? value = taskResult.result;
+      T? value = taskResult.value;
       if (value != null && cacheDuration != Duration.zero) {
         cache.write<T>(
             key: taskId,

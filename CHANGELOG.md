@@ -1,3 +1,9 @@
+## 2.0.1
+
+* Updated Dart SDK constraint to `>=3.13.0 <4.0.0`.
+* Updated Flutter constraint to `>=3.47.0`.
+* Verified package analyzes and tests pass on Dart 3.13.7 / Flutter 3.47.8.
+
 ## 2.0.0
 
 * Simplified status stream accessors: `getTaskStatusStream`, `getManagerTaskStatusStream`, and the internal `getStatusStream` now default to the global stream when no identifier is provided, making subscriptions easier to reason about.
